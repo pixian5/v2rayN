@@ -43,9 +43,9 @@
                         <NativeMenuItem Command="{Binding CopyProxyCmdToClipboardCmd}" Header="{x:Static resx:ResUI.menuCopyProxyCmdToClipboard}" />
                         <NativeMenuItemSeparator />
                         <NativeMenuItem
-                            Command="{Binding SystemProxyClearCmd}"
-                            Header="{x:Static resx:ResUI.menuSystemProxyClear}"
-                            IsChecked="{Binding BlSystemProxyClear}"
+                            Command="{Binding SystemProxyNothingCmd}"
+                            Header="{x:Static resx:ResUI.menuSystemProxyNothing}"
+                            IsChecked="{Binding BlSystemProxyNothing}"
                             ToggleType="Radio" />
                         <NativeMenuItem
                             Command="{Binding SystemProxySetCmd}"
@@ -53,9 +53,9 @@
                             IsChecked="{Binding BlSystemProxySet}"
                             ToggleType="Radio" />
                         <NativeMenuItem
-                            Command="{Binding SystemProxyNothingCmd}"
-                            Header="{x:Static resx:ResUI.menuSystemProxyNothing}"
-                            IsChecked="{Binding BlSystemProxyNothing}"
+                            Command="{Binding SystemProxyClearCmd}"
+                            Header="{x:Static resx:ResUI.menuSystemProxyClear}"
+                            IsChecked="{Binding BlSystemProxyClear}"
                             ToggleType="Radio" />
                         <NativeMenuItem
                             Command="{Binding SystemProxyPacCmd}"

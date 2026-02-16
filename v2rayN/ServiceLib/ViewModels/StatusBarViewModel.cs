@@ -4,6 +4,19 @@ public class StatusBarViewModel : MyReactiveObject
 {
     private static readonly Lazy<StatusBarViewModel> _instance = new(() => new(null));
     public static StatusBarViewModel Instance => _instance.Value;
+    private static readonly ESysProxyType[] _sysProxySelectionOrderWindows =
+    [
+        ESysProxyType.Unchanged,
+        ESysProxyType.ForcedChange,
+        ESysProxyType.ForcedClear,
+        ESysProxyType.Pac,
+    ];
+    private static readonly ESysProxyType[] _sysProxySelectionOrderNonWindows =
+    [
+        ESysProxyType.Unchanged,
+        ESysProxyType.ForcedChange,
+        ESysProxyType.ForcedClear,
+    ];
 
     #region ObservableCollection
 
@@ -123,8 +136,12 @@ public class StatusBarViewModel : MyReactiveObject
             .Subscribe(ServerSelectedChanged);
 
         var lastSysProxyType = _config.SystemProxyItem.LastSysProxyType ?? _config.SystemProxyItem.SysProxyType;
+        if (!SysProxySelectionOrder.Contains(lastSysProxyType))
+        {
+            lastSysProxyType = ESysProxyType.Unchanged;
+        }
         _config.SystemProxyItem.SysProxyType = lastSysProxyType;
-        SystemProxySelected = (int)lastSysProxyType;
+        SystemProxySelected = GetSystemProxySelectedIndex(lastSysProxyType);
         this.WhenAnyValue(
                 x => x.SystemProxySelected,
                 y => y >= 0)
@@ -391,7 +408,7 @@ public class StatusBarViewModel : MyReactiveObject
         await ChangeSystemProxyAsync(type, true);
         NoticeManager.Instance.SendMessageEx($"{ResUI.TipChangeSystemProxy} - {_config.SystemProxyItem.SysProxyType}");
 
-        SystemProxySelected = (int)_config.SystemProxyItem.SysProxyType;
+        SystemProxySelected = GetSystemProxySelectedIndex(_config.SystemProxyItem.SysProxyType);
         await ConfigHandler.SaveConfig(_config);
     }
 
@@ -458,11 +475,17 @@ public class StatusBarViewModel : MyReactiveObject
         {
             return;
         }
-        if (_config.SystemProxyItem.SysProxyType == (ESysProxyType)SystemProxySelected)
+        if (SystemProxySelected < 0 || SystemProxySelected >= SysProxySelectionOrder.Length)
         {
             return;
         }
-        await SetListenerType((ESysProxyType)SystemProxySelected);
+
+        var selectedType = SysProxySelectionOrder[SystemProxySelected];
+        if (_config.SystemProxyItem.SysProxyType == selectedType)
+        {
+            return;
+        }
+        await SetListenerType(selectedType);
     }
 
     private async Task DoEnableTun(bool c)
@@ -515,6 +538,16 @@ public class StatusBarViewModel : MyReactiveObject
     }
 
     #endregion System proxy and Routings
+
+    private ESysProxyType[] SysProxySelectionOrder => Utils.IsWindows()
+        ? _sysProxySelectionOrderWindows
+        : _sysProxySelectionOrderNonWindows;
+
+    private int GetSystemProxySelectedIndex(ESysProxyType type)
+    {
+        var index = Array.IndexOf(SysProxySelectionOrder, type);
+        return index >= 0 ? index : 0;
+    }
 
     #region UI
 
