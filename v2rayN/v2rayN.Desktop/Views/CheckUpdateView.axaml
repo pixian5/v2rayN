@@ -102,7 +102,7 @@
                                     Text="{Binding CoreType}" />
                                 <Grid
                                     Grid.Column="2"
-                                    ColumnDefinitions="Auto,Auto,*"
+                                    ColumnDefinitions="70,90,*"
                                     ColumnSpacing="8">
                                     <TextBlock
                                         Grid.Column="0"
@@ -121,6 +121,15 @@
                                         Grid.Column="2"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Center"
+                                        IsVisible="{Binding IsNotGeoCore}"
+                                        Text="{Binding Remarks}"
+                                        TextWrapping="WrapWithOverflow" />
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Grid.ColumnSpan="3"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        IsVisible="{Binding IsGeoCore}"
                                         Text="{Binding Remarks}"
                                         TextWrapping="WrapWithOverflow" />
                                 </Grid>
