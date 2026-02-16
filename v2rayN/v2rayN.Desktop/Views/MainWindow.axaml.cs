@@ -304,6 +304,22 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
                 case Key.S:
                     await ScanScreenTaskAsync();
                     break;
+
+                case Key.R:
+                    if (ViewModel != null)
+                    {
+                        await ViewModel.UpdateSubscriptionProcess(_config.SubIndexId, false);
+                    }
+                    e.Handled = true;
+                    break;
+
+                case Key.U:
+                    if (ViewModel != null)
+                    {
+                        await ViewModel.UpdateSubscriptionProcess(_config.SubIndexId, true);
+                    }
+                    e.Handled = true;
+                    break;
             }
         }
         else

@@ -307,10 +307,6 @@ public partial class ProfilesView : ReactiveUserControl<ProfilesViewModel>
                     ViewModel?.ServerSpeedtest(ESpeedActionType.Tcping);
                     break;
 
-                case Key.R:
-                    ViewModel?.ServerSpeedtest(ESpeedActionType.Realping);
-                    break;
-
                 case Key.T:
                     ViewModel?.ServerSpeedtest(ESpeedActionType.Speedtest);
                     break;
@@ -373,11 +369,6 @@ public partial class ProfilesView : ReactiveUserControl<ProfilesViewModel>
         {
             case Key.O:
                 ViewModel.ServerSpeedtest(ESpeedActionType.Tcping);
-                e.Handled = true;
-                break;
-
-            case Key.R:
-                ViewModel.ServerSpeedtest(ESpeedActionType.Realping);
                 e.Handled = true;
                 break;
 

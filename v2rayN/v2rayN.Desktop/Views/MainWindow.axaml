@@ -57,8 +57,14 @@
                         <Separator />
                         <MenuItem x:Name="menuSubUpdate" Header="{x:Static resx:ResUI.menuSubUpdate}" />
                         <MenuItem x:Name="menuSubUpdateViaProxy" Header="{x:Static resx:ResUI.menuSubUpdateViaProxy}" />
-                        <MenuItem x:Name="menuSubGroupUpdate" Header="{x:Static resx:ResUI.menuSubGroupUpdate}" />
-                        <MenuItem x:Name="menuSubGroupUpdateViaProxy" Header="{x:Static resx:ResUI.menuSubGroupUpdateViaProxy}" />
+                        <MenuItem
+                            x:Name="menuSubGroupUpdate"
+                            Header="{x:Static resx:ResUI.menuSubGroupUpdate}"
+                            InputGesture="Ctrl+R" />
+                        <MenuItem
+                            x:Name="menuSubGroupUpdateViaProxy"
+                            Header="{x:Static resx:ResUI.menuSubGroupUpdateViaProxy}"
+                            InputGesture="Ctrl+U" />
                     </MenuItem>
 
                     <MenuItem Header="{x:Static resx:ResUI.menuSetting}">
