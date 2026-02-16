@@ -100,27 +100,31 @@
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Center"
                                     Text="{Binding CoreType}" />
-                                <StackPanel
+                                <Grid
                                     Grid.Column="2"
-                                    Orientation="Horizontal"
-                                    Spacing="8">
+                                    ColumnDefinitions="Auto,90,*"
+                                    ColumnSpacing="8">
                                     <TextBlock
+                                        Grid.Column="0"
                                         MinWidth="70"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Center"
                                         Text="{Binding Version}" />
                                     <Button
-                                        MinWidth="90"
+                                        Grid.Column="1"
+                                        Width="90"
+                                        HorizontalAlignment="Left"
                                         Content="{x:Static resx:ResUI.menuCheckUpdate}"
                                         IsVisible="{Binding ShowCheckUpdateButton}"
                                         Command="{Binding DataContext.CheckUpdateItemCmd, ElementName=Root}"
                                         CommandParameter="{Binding}" />
                                     <TextBlock
+                                        Grid.Column="2"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Center"
                                         Text="{Binding Remarks}"
                                         TextWrapping="WrapWithOverflow" />
-                                </StackPanel>
+                                </Grid>
                             </Grid>
                         </Panel>
                     </DataTemplate>
