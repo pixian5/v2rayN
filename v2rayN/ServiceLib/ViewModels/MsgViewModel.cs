@@ -5,6 +5,9 @@ public class MsgViewModel : MyReactiveObject
     private readonly ConcurrentQueue<string> _queueMsg = new();
     private volatile bool _lastMsgFilterNotAvailable;
     private int _showLock = 0; // 0 = unlocked, 1 = locked
+    private static readonly Regex _logDateTimePrefixRegex = new(
+        @"^(?<date>\d{4}[-/]\d{2}[-/]\d{2})\s+(?<time>\d{2}:\d{2}:\d{1,2})(?:\.\d+)?\s*",
+        RegexOptions.Compiled);
     public int NumMaxMsg { get; } = 500;
 
     [Reactive]
@@ -74,6 +77,8 @@ public class MsgViewModel : MyReactiveObject
 
     private void EnqueueQueueMsg(string msg)
     {
+        msg = NormalizeLogTimestamp(msg);
+
         //filter msg
         if (MsgFilter.IsNotEmpty() && !_lastMsgFilterNotAvailable)
         {
@@ -96,6 +101,36 @@ public class MsgViewModel : MyReactiveObject
         {
             _queueMsg.Enqueue(Environment.NewLine);
         }
+    }
+
+    private static string NormalizeLogTimestamp(string msg)
+    {
+        if (msg.IsNullOrEmpty())
+        {
+            return msg;
+        }
+
+        var lines = msg.Split(["\r\n", "\n"], StringSplitOptions.None);
+        for (var i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i];
+            if (line.IsNullOrEmpty())
+            {
+                continue;
+            }
+
+            var match = _logDateTimePrefixRegex.Match(line);
+            if (!match.Success)
+            {
+                continue;
+            }
+
+            var time = match.Groups["time"].Value;
+            var rest = line.Substring(match.Length).TrimStart();
+            lines[i] = rest.IsNullOrEmpty() ? time : $"{time} {rest}";
+        }
+
+        return string.Join(Environment.NewLine, lines);
     }
 
     //public void ClearMsg()

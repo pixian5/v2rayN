@@ -68,29 +68,38 @@
                 <Button
                     x:Name="btnAutofitColumnWidth"
                     Margin="{StaticResource MarginLr4}"
-                    Classes="IconButton Success"
+                    Classes="Success"
                     ToolTip.Tip="{x:Static resx:ResUI.menuProfileAutofitColumnWidth}">
                     <Button.Content>
-                        <PathIcon Data="{StaticResource SemiIconExpand}" />
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource SemiIconExpand}" />
+                            <TextBlock Text="自动调整列宽" />
+                        </StackPanel>
                     </Button.Content>
                 </Button>
 
                 <Button
                     x:Name="btnFastRealPing"
                     Margin="{StaticResource MarginLr4}"
-                    Classes="IconButton Success"
+                    Classes="Success"
                     ToolTip.Tip="{x:Static resx:ResUI.menuFastRealPing}">
                     <Button.Content>
-                        <PathIcon Data="{StaticResource SemiIconBolt}" />
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource SemiIconBolt}" />
+                            <TextBlock Text="测试延迟" />
+                        </StackPanel>
                     </Button.Content>
                 </Button>
                 <Button
                     x:Name="menuMixedTestServer"
                     Margin="{StaticResource MarginLr4}"
-                    Classes="IconButton Success"
+                    Classes="Success"
                     ToolTip.Tip="{x:Static resx:ResUI.menuMixedTestServer}">
                     <Button.Content>
-                        <PathIcon Data="{StaticResource building_ping}" />
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource building_ping}" />
+                            <TextBlock Text="测试下载速度" />
+                        </StackPanel>
                     </Button.Content>
                 </Button>
 

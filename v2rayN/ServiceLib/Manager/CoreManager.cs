@@ -80,7 +80,7 @@ public class CoreManager
 
         await UpdateFunc(false, $"{node.GetSummary()}");
         await UpdateFunc(false, $"{Utils.GetRuntimeInfo()}");
-        await UpdateFunc(false, string.Format(ResUI.StartService, DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")));
+        await UpdateFunc(false, string.Format(ResUI.StartService, DateTime.Now.ToString("HH:mm:ss")));
         await CoreStop();
         await Task.Delay(100);
 
@@ -110,7 +110,7 @@ public class CoreManager
             return null;
         }
 
-        await UpdateFunc(false, string.Format(ResUI.StartService, DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")));
+        await UpdateFunc(false, string.Format(ResUI.StartService, DateTime.Now.ToString("HH:mm:ss")));
         await UpdateFunc(false, configPath);
 
         var coreInfo = CoreInfoManager.Instance.GetCoreInfo(coreType);

@@ -29,7 +29,7 @@ public class NoticeManager
         {
             return;
         }
-        content = $"{DateTime.Now:yyyy/MM/dd HH:mm:ss} {content}";
+        content = $"{DateTime.Now:HH:mm:ss} {content}";
         SendMessage(content);
     }
 
