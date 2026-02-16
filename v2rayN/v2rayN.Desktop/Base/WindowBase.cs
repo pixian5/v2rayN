@@ -28,10 +28,10 @@ public class WindowBase<TViewModel> : ReactiveWindow<TViewModel> where TViewMode
             var workingArea = (Screens.ScreenFromWindow(this) ?? Screens.Primary).WorkingArea;
             var scaling = (Utils.IsMacOS() ? null : VisualRoot?.RenderScaling) ?? 1.0;
 
-            var x = workingArea.X + ((workingArea.Width - (Width * scaling)) / 2);
-            var y = workingArea.Y + ((workingArea.Height - (Height * scaling)) / 2);
+            var x = sizeItem.Left ?? (int)(workingArea.X + ((workingArea.Width - (Width * scaling)) / 2));
+            var y = sizeItem.Top ?? (int)(workingArea.Y + ((workingArea.Height - (Height * scaling)) / 2));
 
-            Position = new PixelPoint((int)x, (int)y);
+            Position = new PixelPoint(x, y);
         }
         catch { }
     }
@@ -41,7 +41,7 @@ public class WindowBase<TViewModel> : ReactiveWindow<TViewModel> where TViewMode
         base.OnClosed(e);
         try
         {
-            ConfigHandler.SaveWindowSizeItem(AppManager.Instance.Config, GetType().Name, Width, Height);
+            ConfigHandler.SaveWindowSizeItem(AppManager.Instance.Config, GetType().Name, Width, Height, Position.X, Position.Y);
         }
         catch { }
     }

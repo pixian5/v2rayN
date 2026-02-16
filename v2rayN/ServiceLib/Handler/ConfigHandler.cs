@@ -2461,7 +2461,7 @@ public static class ConfigHandler
         return sizeItem;
     }
 
-    public static int SaveWindowSizeItem(Config config, string typeName, double width, double height)
+    public static int SaveWindowSizeItem(Config config, string typeName, double width, double height, double? left = null, double? top = null)
     {
         var sizeItem = config?.UiItem?.WindowSizeItem?.FirstOrDefault(t => t.TypeName == typeName);
         if (sizeItem == null)
@@ -2472,6 +2472,14 @@ public static class ConfigHandler
 
         sizeItem.Width = (int)width;
         sizeItem.Height = (int)height;
+        if (left is double l && !double.IsNaN(l) && !double.IsInfinity(l))
+        {
+            sizeItem.Left = (int)l;
+        }
+        if (top is double t && !double.IsNaN(t) && !double.IsInfinity(t))
+        {
+            sizeItem.Top = (int)t;
+        }
 
         return 0;
     }
