@@ -310,9 +310,10 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
                     break;
 
                 case Key.R:
-                    if (ViewModel != null)
+                    var profilesView = GetCurrentProfilesView();
+                    if (profilesView != null)
                     {
-                        await ViewModel.UpdateSubscriptionProcess(_config.SubIndexId, false);
+                        await profilesView.TriggerLatencyTestAsync();
                     }
                     e.Handled = true;
                     break;
@@ -545,6 +546,16 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         {
             ProcUtils.ProcessStart(item.Tag?.ToString());
         }
+    }
+
+    private ProfilesView? GetCurrentProfilesView()
+    {
+        return _config.UiItem.MainGirdOrientation switch
+        {
+            EGirdOrientation.Horizontal => tabProfiles.Content as ProfilesView,
+            EGirdOrientation.Vertical => tabProfiles1.Content as ProfilesView,
+            _ => tabProfiles2.Content as ProfilesView,
+        };
     }
 
     #endregion UI

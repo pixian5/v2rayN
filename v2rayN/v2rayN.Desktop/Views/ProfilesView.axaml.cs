@@ -405,6 +405,15 @@ public partial class ProfilesView : ReactiveUserControl<ProfilesViewModel>
         }, DispatcherPriority.Background);
     }
 
+    public async Task TriggerLatencyTestAsync()
+    {
+        if (ViewModel == null)
+        {
+            return;
+        }
+        await ViewModel.ServerSpeedtest(ESpeedActionType.FastRealping);
+    }
+
     private void AutofitColumnWidth()
     {
         try
