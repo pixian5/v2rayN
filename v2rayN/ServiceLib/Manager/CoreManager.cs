@@ -73,6 +73,11 @@ public class CoreManager
             return;
         }
 
+        if (!await EnsureGeoFilesReady(node))
+        {
+            return;
+        }
+
         await UpdateFunc(false, $"{node.GetSummary()}");
         await UpdateFunc(false, $"{Utils.GetRuntimeInfo()}");
         await UpdateFunc(false, string.Format(ResUI.StartService, DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")));
@@ -164,6 +169,51 @@ public class CoreManager
     }
 
     #region Private
+
+    private async Task<bool> EnsureGeoFilesReady(ProfileItem node)
+    {
+        var coreType = AppManager.Instance.GetCoreType(node, node.ConfigType);
+        if (coreType != ECoreType.Xray)
+        {
+            return true;
+        }
+
+        var requiredFiles = new[]
+        {
+            Utils.GetBinPath("geosite.dat"),
+            Utils.GetBinPath("geoip.dat"),
+        };
+
+        var missingFiles = requiredFiles.Where(path => !File.Exists(path)).ToList();
+        if (missingFiles.Count == 0)
+        {
+            return true;
+        }
+
+        var missingFileNames = string.Join(", ", missingFiles.Select(Path.GetFileName));
+        await UpdateFunc(false, $"Geo files missing ({missingFileNames}), trying to update...");
+
+        try
+        {
+            await new UpdateService(_config, UpdateFunc).UpdateGeoFileAll();
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog(_tag, ex);
+            await UpdateFunc(false, ex.Message);
+        }
+
+        var missingAfterUpdate = requiredFiles.Where(path => !File.Exists(path)).ToList();
+        if (missingAfterUpdate.Count == 0)
+        {
+            await UpdateFunc(false, "Geo files are ready.");
+            return true;
+        }
+
+        var missingAfterUpdateNames = string.Join(", ", missingAfterUpdate.Select(Path.GetFileName));
+        await UpdateFunc(true, $"Geo files are still missing ({missingAfterUpdateNames}). Please update GeoFiles and retry.");
+        return false;
+    }
 
     private async Task CoreStart(ProfileItem node)
     {
