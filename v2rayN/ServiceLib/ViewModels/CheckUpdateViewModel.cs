@@ -89,6 +89,8 @@ public class CheckUpdateViewModel : MyReactiveObject
             }
         }
         CheckUpdateModels.Add(GetCheckUpdateModel(_geo));
+
+        _ = LoadInstalledVersionsAsync();
     }
 
     private CheckUpdateModel GetCheckUpdateModel(string coreType)
@@ -108,7 +110,84 @@ public class CheckUpdateViewModel : MyReactiveObject
         {
             IsSelected = _config.CheckUpdateItem.SelectedCoreTypes?.Contains(coreType) ?? true,
             CoreType = coreType,
+            Version = string.Empty,
             Remarks = string.Empty,
+        };
+    }
+
+    private async Task LoadInstalledVersionsAsync()
+    {
+        foreach (var item in CheckUpdateModels)
+        {
+            item.Version = await GetInstalledVersionAsync(item.CoreType);
+        }
+    }
+
+    private async Task<string> GetInstalledVersionAsync(string? coreType)
+    {
+        try
+        {
+            if (coreType.IsNullOrEmpty() || coreType == _geo)
+            {
+                return string.Empty;
+            }
+
+            if (coreType == _v2rayN)
+            {
+                return $"v{Utils.GetVersionInfo()}";
+            }
+
+            if (!Enum.TryParse<ECoreType>(coreType, out var type))
+            {
+                return string.Empty;
+            }
+
+            if (type is not (ECoreType.Xray or ECoreType.mihomo or ECoreType.sing_box))
+            {
+                return string.Empty;
+            }
+
+            var coreInfo = CoreInfoManager.Instance.GetCoreInfo(type);
+            var filePath = string.Empty;
+            foreach (var name in coreInfo?.CoreExes ?? [])
+            {
+                var candidate = Utils.GetBinPath(Utils.GetExeName(name), coreInfo?.CoreType.ToString());
+                if (File.Exists(candidate))
+                {
+                    filePath = candidate;
+                    break;
+                }
+            }
+
+            if (!File.Exists(filePath) || coreInfo?.VersionArg.IsNullOrEmpty() != false)
+            {
+                return string.Empty;
+            }
+
+            var output = await Utils.GetCliWrapOutput(filePath, coreInfo.VersionArg);
+            var version = ParseCoreVersion(type, coreInfo.Match, output ?? string.Empty);
+            if (version.IsNullOrEmpty())
+            {
+                return string.Empty;
+            }
+
+            return type == ECoreType.mihomo ? version : $"v{version}";
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog(_tag, ex);
+            return string.Empty;
+        }
+    }
+
+    private static string ParseCoreVersion(ECoreType type, string? match, string output)
+    {
+        return type switch
+        {
+            ECoreType.Xray => System.Text.RegularExpressions.Regex.Match(output, $"{match} ([0-9.]+) \\(").Groups[1].Value,
+            ECoreType.mihomo => System.Text.RegularExpressions.Regex.Match(output, "v[0-9.]+").Groups[0].Value,
+            ECoreType.sing_box => System.Text.RegularExpressions.Regex.Match(output, "([0-9.]+)").Groups[1].Value,
+            _ => string.Empty
         };
     }
 
