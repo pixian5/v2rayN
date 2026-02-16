@@ -29,6 +29,7 @@ public class SubEditViewModel : MyReactiveObject
             return;
         }
 
+        SelectedSource.Url = NormalizeOptionalUrl(SelectedSource.Url);
         var url = SelectedSource.Url;
         if (url.IsNotEmpty())
         {
@@ -55,5 +56,21 @@ public class SubEditViewModel : MyReactiveObject
         {
             NoticeManager.Instance.Enqueue(ResUI.OperationFailed);
         }
+    }
+
+    private static string NormalizeOptionalUrl(string? value)
+    {
+        var url = value?.TrimEx() ?? string.Empty;
+        if (url.IsNullOrEmpty())
+        {
+            return string.Empty;
+        }
+
+        if (!Regex.IsMatch(url, @"^[a-zA-Z][a-zA-Z0-9+.\-]*://"))
+        {
+            url = $"{Global.HttpsProtocol}{url}";
+        }
+
+        return url;
     }
 }
