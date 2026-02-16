@@ -27,6 +27,7 @@ public partial class ProfilesView : ReactiveUserControl<ProfilesViewModel>
         menuTcpingServer.Click += SpeedTestTrigger_Click;
         menuRealPingServer.Click += SpeedTestTrigger_Click;
         menuSpeedServer.Click += SpeedTestTrigger_Click;
+        AddHandler(KeyDownEvent, ProfilesView_KeyDown, RoutingStrategies.Tunnel);
         txtServerFilter.KeyDown += TxtServerFilter_KeyDown;
         lstProfiles.KeyDown += LstProfiles_KeyDown;
         lstProfiles.SelectionChanged += lstProfiles_SelectionChanged;
@@ -353,6 +354,42 @@ public partial class ProfilesView : ReactiveUserControl<ProfilesViewModel>
                     ViewModel?.ServerSpeedtestStop();
                     break;
             }
+        }
+    }
+
+    private void ProfilesView_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Handled || ViewModel == null)
+        {
+            return;
+        }
+
+        if (e.KeyModifiers is not (KeyModifiers.Control or KeyModifiers.Meta))
+        {
+            return;
+        }
+
+        switch (e.Key)
+        {
+            case Key.O:
+                ViewModel.ServerSpeedtest(ESpeedActionType.Tcping);
+                e.Handled = true;
+                break;
+
+            case Key.R:
+                ViewModel.ServerSpeedtest(ESpeedActionType.Realping);
+                e.Handled = true;
+                break;
+
+            case Key.T:
+                ViewModel.ServerSpeedtest(ESpeedActionType.Speedtest);
+                e.Handled = true;
+                break;
+
+            case Key.E:
+                ViewModel.ServerSpeedtest(ESpeedActionType.Mixedtest);
+                e.Handled = true;
+                break;
         }
     }
 
