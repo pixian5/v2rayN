@@ -363,9 +363,9 @@ public class OptionSettingViewModel : MyReactiveObject
         _config.GuiItem.EnableHWA = EnableHWA;
         _config.ConstItem.SubConvertUrl = SubConvertUrl;
         _config.UiItem.MainGirdOrientation = (EGirdOrientation)MainGirdOrientation;
-        _config.ConstItem.GeoSourceUrl = GeoFileSourceUrl;
-        _config.ConstItem.SrsSourceUrl = SrsFileSourceUrl;
-        _config.ConstItem.RouteRulesTemplateSourceUrl = RoutingRulesSourceUrl;
+        _config.ConstItem.GeoSourceUrl = NormalizeOptionalUrl(GeoFileSourceUrl);
+        _config.ConstItem.SrsSourceUrl = NormalizeOptionalUrl(SrsFileSourceUrl);
+        _config.ConstItem.RouteRulesTemplateSourceUrl = NormalizeOptionalUrl(RoutingRulesSourceUrl);
         _config.SpeedTestItem.IPAPIUrl = IPAPIUrl;
 
         //systemProxy
@@ -398,6 +398,22 @@ public class OptionSettingViewModel : MyReactiveObject
         {
             NoticeManager.Instance.Enqueue(ResUI.OperationFailed);
         }
+    }
+
+    private static string NormalizeOptionalUrl(string? value)
+    {
+        var url = value?.TrimEx() ?? string.Empty;
+        if (url.IsNullOrEmpty())
+        {
+            return string.Empty;
+        }
+
+        if (!Regex.IsMatch(url, @"^[a-zA-Z][a-zA-Z0-9+.\-]*://"))
+        {
+            url = $"https://{url}";
+        }
+
+        return url;
     }
 
     private async Task SaveCoreType()
