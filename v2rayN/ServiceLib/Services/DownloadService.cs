@@ -40,10 +40,14 @@ public class DownloadService
     {
         try
         {
-            UpdateCompleted?.Invoke(this, new UpdateResult(false, $"{ResUI.Downloading}   {url}"));
+            UpdateCompleted?.Invoke(this, new UpdateResult(false, $"{ResUI.DownloadProgress}: 0%{Environment.NewLine}{url}"));
 
             var progress = new Progress<double>();
-            progress.ProgressChanged += (sender, value) => UpdateCompleted?.Invoke(this, new UpdateResult(value > 100, $"...{value}%"));
+            progress.ProgressChanged += (sender, value) =>
+            {
+                var percent = Math.Clamp((int)value, 0, 100);
+                UpdateCompleted?.Invoke(this, new UpdateResult(value > 100, $"{ResUI.DownloadProgress}: {percent}%{Environment.NewLine}{url}"));
+            };
 
             var useSystemProxy = useSystemProxyFirst && blProxy;
             var webProxy = await GetWebProxy(blProxy, useSystemProxy);

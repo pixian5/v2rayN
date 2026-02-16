@@ -176,6 +176,15 @@ namespace ServiceLib.Resx {
                 return ResourceManager.GetString("Downloading", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   查找类似 Progress 的本地化字符串。
+        /// </summary>
+        public static string DownloadProgress {
+            get {
+                return ResourceManager.GetString("DownloadProgress", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   查找类似 Failed to convert configuration file 的本地化字符串。

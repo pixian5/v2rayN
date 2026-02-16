@@ -132,6 +132,9 @@
   <data name="Downloading" xml:space="preserve">
     <value>下載開始...</value>
   </data>
+  <data name="DownloadProgress" xml:space="preserve">
+    <value>進度</value>
+  </data>
   <data name="FailedConversionConfiguration" xml:space="preserve">
     <value>轉換設定失敗</value>
   </data>

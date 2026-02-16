@@ -132,6 +132,9 @@
   <data name="Downloading" xml:space="preserve">
     <value>Downloading...</value>
   </data>
+  <data name="DownloadProgress" xml:space="preserve">
+    <value>Progress</value>
+  </data>
   <data name="FailedConversionConfiguration" xml:space="preserve">
     <value>Failed to convert configuration file</value>
   </data>
