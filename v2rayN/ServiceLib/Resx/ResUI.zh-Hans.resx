@@ -1780,10 +1780,10 @@
     <value>infra/conf/serial: 正在读取配置：</value>
   </data>
   <data name="CoreLogVlessDeprecated" xml:space="preserve">
-    <value>VLESS 功能（无 Flow 等）已被弃用，不建议继续使用且未来可能被移除。请尽快迁移到带 Flow &amp; Seed 的 VLESS。</value>
+    <value>VLESS 功能（无 Flow 等）已被弃用，不建议继续使用且未来可能被移除。请尽快迁移到带 Flow 与 Seed 的 VLESS。</value>
   </data>
   <data name="CoreLogWebsocketDeprecated" xml:space="preserve">
-    <value>WebSocket 传输（含 ALPN http/1.1 等）已被弃用，不建议继续使用且未来可能被移除。请尽快迁移到 XHTTP H2 &amp; H3。</value>
+    <value>WebSocket 传输（含 ALPN http/1.1 等）已被弃用，不建议继续使用且未来可能被移除。请尽快迁移到 XHTTP 的 H2 与 H3。</value>
   </data>
   <data name="CoreLogAllowInsecureDeprecated" xml:space="preserve">
     <value>"allowInsecure" 将在 {0} 后自动移除，请改用 "pinnedPeerCertSha256"(pcs) 和 "verifyPeerCertByName"(vcn)，并联系你的服务提供方（机场）。</value>
@@ -1793,5 +1793,32 @@
   </data>
   <data name="CoreLogAcceptedVerb" xml:space="preserve">
     <value>已接受</value>
+  </data>
+  <data name="CoreLogFromPrefix" xml:space="preserve">
+    <value>来自</value>
+  </data>
+  <data name="CoreLogConfigNameField" xml:space="preserve">
+    <value>名称:</value>
+  </data>
+  <data name="CoreLogConfigFormatField" xml:space="preserve">
+    <value>格式:</value>
+  </data>
+  <data name="CommonNone" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="CommonUnknown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="RuntimeInfoTemplate" xml:space="preserve">
+    <value>版本：{0} | 启动目录：{1} | 可执行文件：{2} | 系统：{3}</value>
+  </data>
+  <data name="RuntimeOSWindows" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="RuntimeOSLinux" xml:space="preserve">
+    <value>Linux</value>
+  </data>
+  <data name="RuntimeOSMacOS" xml:space="preserve">
+    <value>macOS</value>
   </data>
 </root>

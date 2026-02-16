@@ -1797,4 +1797,31 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   <data name="CoreLogAcceptedVerb" xml:space="preserve">
     <value>accepted</value>
   </data>
+  <data name="CoreLogFromPrefix" xml:space="preserve">
+    <value>from</value>
+  </data>
+  <data name="CoreLogConfigNameField" xml:space="preserve">
+    <value>Name:</value>
+  </data>
+  <data name="CoreLogConfigFormatField" xml:space="preserve">
+    <value>Format:</value>
+  </data>
+  <data name="CommonNone" xml:space="preserve">
+    <value>none</value>
+  </data>
+  <data name="CommonUnknown" xml:space="preserve">
+    <value>unknown</value>
+  </data>
+  <data name="RuntimeInfoTemplate" xml:space="preserve">
+    <value>Version: {0} | Startup path: {1} | Executable: {2} | OS: {3}</value>
+  </data>
+  <data name="RuntimeOSWindows" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="RuntimeOSLinux" xml:space="preserve">
+    <value>Linux</value>
+  </data>
+  <data name="RuntimeOSMacOS" xml:space="preserve">
+    <value>macOS</value>
+  </data>
 </root>

@@ -7,7 +7,8 @@ public static class ConnectionHandler
     public static async Task<string> RunAvailabilityCheck()
     {
         var time = await GetRealPingTimeInfo();
-        var ip = time > 0 ? await GetIPInfo() ?? Global.None : Global.None;
+        var noneText = GetResText("CommonNone", "none");
+        var ip = time > 0 ? await GetIPInfo() ?? noneText : noneText;
 
         return string.Format(ResUI.TestMeOutput, time, ip);
     }
@@ -36,7 +37,7 @@ public static class ConnectionHandler
         var ip = ipInfo.ip ?? ipInfo.clientIp ?? ipInfo.ip_addr ?? ipInfo.query;
         var country = ipInfo.country_code ?? ipInfo.country ?? ipInfo.countryCode ?? ipInfo.location?.country_code;
 
-        return $"({country ?? "unknown"}) {ip}";
+        return $"({country ?? GetResText("CommonUnknown", "unknown")}) {ip}";
     }
 
     private static async Task<int> GetRealPingTimeInfo()
@@ -94,5 +95,11 @@ public static class ConnectionHandler
         {
         }
         return responseTime;
+    }
+
+    private static string GetResText(string key, string fallback)
+    {
+        var value = ResUI.ResourceManager.GetString(key, System.Globalization.CultureInfo.CurrentUICulture);
+        return value.IsNotEmpty() ? value : fallback;
     }
 }

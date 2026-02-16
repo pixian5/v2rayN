@@ -721,7 +721,29 @@ public class Utils
 
     public static string GetRuntimeInfo()
     {
-        return $"{Utils.GetVersion()} | {Utils.StartupPath()} | {Utils.GetExePath()} | {Environment.OSVersion}";
+        static string GetResText(string key, string fallback)
+        {
+            var value = ResUI.ResourceManager.GetString(key, System.Globalization.CultureInfo.CurrentUICulture);
+            return value.IsNotEmpty() ? value : fallback;
+        }
+
+        var osName = Utils.IsWindows()
+            ? GetResText("RuntimeOSWindows", "Windows")
+            : Utils.IsLinux()
+                ? GetResText("RuntimeOSLinux", "Linux")
+                : Utils.IsMacOS()
+                    ? GetResText("RuntimeOSMacOS", "macOS")
+                    : Environment.OSVersion.Platform.ToString();
+
+        var osInfo = $"{osName} {Environment.OSVersion.Version}";
+
+        var template = GetResText("RuntimeInfoTemplate", "Version: {0} | Startup path: {1} | Executable: {2} | OS: {3}");
+        return string.Format(
+            template,
+            Utils.GetVersion(),
+            Utils.StartupPath(),
+            Utils.GetExePath(),
+            osInfo);
     }
 
     /// <summary>
