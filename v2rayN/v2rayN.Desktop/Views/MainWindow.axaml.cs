@@ -279,6 +279,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         switch (e.CloseReason)
         {
             case WindowCloseReason.OwnerWindowClosing or WindowCloseReason.WindowClosing:
+                StorageUI();
                 e.Cancel = true;
                 ShowHideWindow(false);
                 break;
@@ -483,7 +484,15 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
 
     private void StorageUI()
     {
-        ConfigHandler.SaveWindowSizeItem(_config, GetType().Name, Width, Height, Position.X, Position.Y);
+        double? left = Position.X;
+        double? top = Position.Y;
+        if (WindowState != WindowState.Normal || left < -10000 || top < -10000)
+        {
+            left = null;
+            top = null;
+        }
+
+        ConfigHandler.SaveWindowSizeItem(_config, GetType().Name, Width, Height, left, top);
 
         if (_config.UiItem.MainGirdOrientation == EGirdOrientation.Horizontal)
         {
