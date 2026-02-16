@@ -1758,4 +1758,40 @@
   <data name="LogFailedImportSubscription" xml:space="preserve">
     <value>导入订阅失败</value>
   </data>
+  <data name="CoreLogRuntimeInfo" xml:space="preserve">
+    <value>运行时信息：{0}</value>
+  </data>
+  <data name="CoreLogGeoFilesMissing" xml:space="preserve">
+    <value>Geo 文件缺失（{0}），尝试更新...</value>
+  </data>
+  <data name="CoreLogGeoFilesReady" xml:space="preserve">
+    <value>Geo 文件已就绪。</value>
+  </data>
+  <data name="CoreLogGeoFilesStillMissing" xml:space="preserve">
+    <value>Geo 文件仍缺失（{0}）。请更新 GeoFiles 后重试。</value>
+  </data>
+  <data name="CoreLogPenetratesEverything" xml:space="preserve">
+    <value>穿透一切。</value>
+  </data>
+  <data name="CoreLogUnifiedPlatform" xml:space="preserve">
+    <value>一个统一的反审查平台。</value>
+  </data>
+  <data name="CoreLogReadingConfigPrefix" xml:space="preserve">
+    <value>infra/conf/serial: 正在读取配置：</value>
+  </data>
+  <data name="CoreLogVlessDeprecated" xml:space="preserve">
+    <value>VLESS 功能（无 Flow 等）已被弃用，不建议继续使用且未来可能被移除。请尽快迁移到带 Flow &amp; Seed 的 VLESS。</value>
+  </data>
+  <data name="CoreLogWebsocketDeprecated" xml:space="preserve">
+    <value>WebSocket 传输（含 ALPN http/1.1 等）已被弃用，不建议继续使用且未来可能被移除。请尽快迁移到 XHTTP H2 &amp; H3。</value>
+  </data>
+  <data name="CoreLogAllowInsecureDeprecated" xml:space="preserve">
+    <value>"allowInsecure" 将在 {0} 后自动移除，请改用 "pinnedPeerCertSha256"(pcs) 和 "verifyPeerCertByName"(vcn)，并联系你的服务提供方（机场）。</value>
+  </data>
+  <data name="CoreLogXrayStarted" xml:space="preserve">
+    <value>Xray {0} 已启动</value>
+  </data>
+  <data name="CoreLogAcceptedVerb" xml:space="preserve">
+    <value>已接受</value>
+  </data>
 </root>

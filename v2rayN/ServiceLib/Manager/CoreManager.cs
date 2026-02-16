@@ -79,7 +79,7 @@ public class CoreManager
         }
 
         await UpdateFunc(false, $"{node.GetSummary()}");
-        await UpdateFunc(false, $"{Utils.GetRuntimeInfo()}");
+        await UpdateFunc(false, GetLocalizedText("CoreLogRuntimeInfo", "Runtime info: {0}", Utils.GetRuntimeInfo()));
         await UpdateFunc(false, string.Format(ResUI.StartService, DateTime.Now.ToString("HH:mm:ss")));
         await CoreStop();
         await Task.Delay(100);
@@ -191,7 +191,7 @@ public class CoreManager
         }
 
         var missingFileNames = string.Join(", ", missingFiles.Select(Path.GetFileName));
-        await UpdateFunc(false, $"Geo files missing ({missingFileNames}), trying to update...");
+        await UpdateFunc(false, GetLocalizedText("CoreLogGeoFilesMissing", "Geo files missing ({0}), trying to update...", missingFileNames));
 
         try
         {
@@ -206,12 +206,12 @@ public class CoreManager
         var missingAfterUpdate = requiredFiles.Where(path => !File.Exists(path)).ToList();
         if (missingAfterUpdate.Count == 0)
         {
-            await UpdateFunc(false, "Geo files are ready.");
+            await UpdateFunc(false, GetLocalizedText("CoreLogGeoFilesReady", "Geo files are ready."));
             return true;
         }
 
         var missingAfterUpdateNames = string.Join(", ", missingAfterUpdate.Select(Path.GetFileName));
-        await UpdateFunc(true, $"Geo files are still missing ({missingAfterUpdateNames}). Please update GeoFiles and retry.");
+        await UpdateFunc(true, GetLocalizedText("CoreLogGeoFilesStillMissing", "Geo files are still missing ({0}). Please update GeoFiles and retry.", missingAfterUpdateNames));
         return false;
     }
 
@@ -257,6 +257,25 @@ public class CoreManager
     private async Task UpdateFunc(bool notify, string msg)
     {
         await _updateFunc?.Invoke(notify, msg);
+    }
+
+    private static string GetLocalizedText(string resourceKey, string fallback, params object[] args)
+    {
+        var template = ResUI.ResourceManager.GetString(resourceKey, System.Globalization.CultureInfo.CurrentUICulture);
+        template = string.IsNullOrWhiteSpace(template) ? fallback : template;
+
+        try
+        {
+            return args.Length <= 0
+                ? template
+                : string.Format(template, args);
+        }
+        catch
+        {
+            return args.Length <= 0
+                ? fallback
+                : string.Format(fallback, args);
+        }
     }
 
     #endregion Private

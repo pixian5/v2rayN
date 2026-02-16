@@ -1761,4 +1761,40 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   <data name="LogFailedImportSubscription" xml:space="preserve">
     <value>Failed import subscription</value>
   </data>
+  <data name="CoreLogRuntimeInfo" xml:space="preserve">
+    <value>Runtime info: {0}</value>
+  </data>
+  <data name="CoreLogGeoFilesMissing" xml:space="preserve">
+    <value>Geo files missing ({0}), trying to update...</value>
+  </data>
+  <data name="CoreLogGeoFilesReady" xml:space="preserve">
+    <value>Geo files are ready.</value>
+  </data>
+  <data name="CoreLogGeoFilesStillMissing" xml:space="preserve">
+    <value>Geo files are still missing ({0}). Please update GeoFiles and retry.</value>
+  </data>
+  <data name="CoreLogPenetratesEverything" xml:space="preserve">
+    <value>Penetrates Everything.</value>
+  </data>
+  <data name="CoreLogUnifiedPlatform" xml:space="preserve">
+    <value>A unified platform for anti-censorship.</value>
+  </data>
+  <data name="CoreLogReadingConfigPrefix" xml:space="preserve">
+    <value>infra/conf/serial: Reading config:</value>
+  </data>
+  <data name="CoreLogVlessDeprecated" xml:space="preserve">
+    <value>The feature VLESS (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow &amp; Seed as soon as possible.</value>
+  </data>
+  <data name="CoreLogWebsocketDeprecated" xml:space="preserve">
+    <value>The feature WebSocket transport (with ALPN http/1.1, etc.) is deprecated, not recommended for using and might be removed. Please migrate to XHTTP H2 &amp; H3 as soon as possible.</value>
+  </data>
+  <data name="CoreLogAllowInsecureDeprecated" xml:space="preserve">
+    <value>"allowInsecure" will be removed automatically after {0}, please use "pinnedPeerCertSha256"(pcs) and "verifyPeerCertByName"(vcn) instead, please contact your service provider (airport).</value>
+  </data>
+  <data name="CoreLogXrayStarted" xml:space="preserve">
+    <value>Xray {0} started</value>
+  </data>
+  <data name="CoreLogAcceptedVerb" xml:space="preserve">
+    <value>accepted</value>
+  </data>
 </root>

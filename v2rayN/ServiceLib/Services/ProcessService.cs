@@ -122,7 +122,8 @@ public class ProcessService : IDisposable
         {
             if (e.Data.IsNotEmpty())
             {
-                _ = _updateFunc?.Invoke(false, e.Data + Environment.NewLine);
+                var localized = CoreOutputLocalizer.Localize(e.Data);
+                _ = _updateFunc?.Invoke(false, localized + Environment.NewLine);
             }
         }
 
