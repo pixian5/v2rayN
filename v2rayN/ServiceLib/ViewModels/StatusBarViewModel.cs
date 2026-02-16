@@ -122,7 +122,9 @@ public class StatusBarViewModel : MyReactiveObject
                 y => y != null && !y.Text.IsNullOrEmpty())
             .Subscribe(ServerSelectedChanged);
 
-        SystemProxySelected = (int)_config.SystemProxyItem.SysProxyType;
+        var lastSysProxyType = _config.SystemProxyItem.LastSysProxyType ?? _config.SystemProxyItem.SysProxyType;
+        _config.SystemProxyItem.SysProxyType = lastSysProxyType;
+        SystemProxySelected = (int)lastSysProxyType;
         this.WhenAnyValue(
                 x => x.SystemProxySelected,
                 y => y >= 0)
@@ -385,6 +387,7 @@ public class StatusBarViewModel : MyReactiveObject
             return;
         }
         _config.SystemProxyItem.SysProxyType = type;
+        _config.SystemProxyItem.LastSysProxyType = type;
         await ChangeSystemProxyAsync(type, true);
         NoticeManager.Instance.SendMessageEx($"{ResUI.TipChangeSystemProxy} - {_config.SystemProxyItem.SysProxyType}");
 

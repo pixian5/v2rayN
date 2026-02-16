@@ -170,6 +170,16 @@ public static class ConfigHandler
             config.SystemProxyItem.SystemProxyExceptions = Utils.IsWindows() ? Global.SystemProxyExceptionsWindows : Global.SystemProxyExceptionsLinux;
         }
 
+        if (!Enum.IsDefined(config.SystemProxyItem.SysProxyType))
+        {
+            config.SystemProxyItem.SysProxyType = ESysProxyType.Unchanged;
+        }
+
+        if (config.SystemProxyItem.LastSysProxyType is not ESysProxyType lastType || !Enum.IsDefined(lastType))
+        {
+            config.SystemProxyItem.LastSysProxyType = config.SystemProxyItem.SysProxyType;
+        }
+
         return config;
     }
 

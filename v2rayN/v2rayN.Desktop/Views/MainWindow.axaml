@@ -90,16 +90,19 @@
                         <MenuItem x:Name="menuOpenTheFileLocation" Header="{x:Static resx:ResUI.menuOpenTheFileLocation}" />
                     </MenuItem>
 
+                    <MenuItem x:Name="menuCheckUpdate" Header="{x:Static resx:ResUI.menuCheckUpdate}" />
+
                     <MenuItem x:Name="menuHelp" Header="{x:Static resx:ResUI.menuHelp}">
-                        <MenuItem x:Name="menuCheckUpdate" Header="{x:Static resx:ResUI.menuCheckUpdate}" />
                         <Separator />
                     </MenuItem>
 
                     <MenuItem x:Name="menuReload" Header="{x:Static resx:ResUI.menuReload}" />
 
+                    <MenuItem x:Name="menuReboot" Header="重启" />
+
                     <MenuItem x:Name="menuPromotion" Header="{x:Static resx:ResUI.menuPromotion}" />
 
-                    <MenuItem x:Name="menuClose" Header="{x:Static resx:ResUI.menuExit}" />
+                    <MenuItem x:Name="menuClose" Header="最小化" />
                 </Menu>
             </DockPanel>
 

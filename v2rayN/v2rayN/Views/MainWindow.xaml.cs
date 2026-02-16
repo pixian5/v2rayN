@@ -24,6 +24,7 @@ public partial class MainWindow
         menuSettingsSetUWP.Click += MenuSettingsSetUWP_Click;
         menuPromotion.Click += MenuPromotion_Click;
         menuClose.Click += MenuClose_Click;
+        menuReboot.Click += MenuReboot_Click;
         menuCheckUpdate.Click += MenuCheckUpdate_Click;
         menuBackupAndRestore.Click += MenuBackupAndRestore_Click;
 
@@ -311,6 +312,11 @@ public partial class MainWindow
     {
         StorageUI();
         ShowHideWindow(false);
+    }
+
+    private async void MenuReboot_Click(object sender, RoutedEventArgs e)
+    {
+        await AppManager.Instance.RebootAsAdmin();
     }
 
     private void MenuPromotion_Click(object sender, RoutedEventArgs e)

@@ -215,6 +215,7 @@ public class ClashUIItem
 public class SystemProxyItem
 {
     public ESysProxyType SysProxyType { get; set; }
+    public ESysProxyType? LastSysProxyType { get; set; }
     public string SystemProxyExceptions { get; set; }
     public bool NotProxyLocalAddress { get; set; } = true;
     public string SystemProxyAdvancedProtocol { get; set; }

@@ -746,6 +746,8 @@ public class ProfilesViewModel : MyReactiveObject
 
     public async Task ServerSpeedtest(ESpeedActionType actionType)
     {
+        await _updateView?.Invoke(EViewAction.ProfilesFocus, null);
+
         if (actionType == ESpeedActionType.Mixedtest)
         {
             SelectedProfiles = ProfileItems;

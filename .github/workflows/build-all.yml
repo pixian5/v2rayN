@@ -54,7 +54,7 @@ jobs:
               }
             }"
 
-      - name: Trigger build windows desktop
+      - name: Trigger build windows wpf (legacy)
         if: github.event.inputs.release_tag != ''
         run: |
           curl -X POST \

@@ -27,6 +27,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         menuCheckUpdate.Click += MenuCheckUpdate_Click;
         menuBackupAndRestore.Click += MenuBackupAndRestore_Click;
         menuClose.Click += MenuClose_Click;
+        menuReboot.Click += MenuReboot_Click;
 
         ViewModel = new MainWindowViewModel(UpdateViewHandler);
 
@@ -374,17 +375,15 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         DialogHost.Show(_backupAndRestoreView);
     }
 
-    private async void MenuClose_Click(object? sender, RoutedEventArgs e)
+    private void MenuClose_Click(object? sender, RoutedEventArgs e)
     {
-        if (await UI.ShowYesNo(this, ResUI.menuExitTips) != ButtonResult.Yes)
-        {
-            return;
-        }
-
-        _blCloseByUser = true;
         StorageUI();
+        ShowHideWindow(false);
+    }
 
-        await AppManager.Instance.AppExitAsync(true);
+    private async void MenuReboot_Click(object? sender, RoutedEventArgs e)
+    {
+        await AppManager.Instance.RebootAsAdmin();
     }
 
     private void Shutdown(bool obj)

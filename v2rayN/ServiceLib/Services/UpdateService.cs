@@ -5,6 +5,7 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
     private readonly Config? _config = config;
     private readonly Func<bool, string, Task>? _updateFunc = updateFunc;
     private readonly int _timeout = 30;
+    private const bool _systemProxyFirst = true;
     private static readonly string _tag = "UpdateService";
 
     public async Task CheckUpdateGuiN(bool preRelease)
@@ -39,7 +40,7 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
 
             url = result.Url.ToString();
             fileName = Utils.GetTempPath(Utils.GetGuid());
-            await downloadHandle.DownloadFileAsync(url, fileName, true, _timeout);
+            await downloadHandle.DownloadFileAsync(url, fileName, true, _timeout, _systemProxyFirst);
         }
         else
         {
@@ -89,7 +90,7 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
             url = result.Url.ToString();
             var ext = url.Contains(".tar.gz") ? ".tar.gz" : Path.GetExtension(url);
             fileName = Utils.GetTempPath(Utils.GetGuid() + ext);
-            await downloadHandle.DownloadFileAsync(url, fileName, true, _timeout);
+            await downloadHandle.DownloadFileAsync(url, fileName, true, _timeout, _systemProxyFirst);
         }
         else
         {
@@ -136,7 +137,7 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
         if (preRelease)
         {
             var url = coreInfo?.ReleaseApiUrl;
-            var result = await downloadHandle.TryDownloadString(url, true, Global.AppName);
+            var result = await downloadHandle.TryDownloadString(url, true, Global.AppName, _systemProxyFirst);
             if (result.IsNullOrEmpty())
             {
                 return new UpdateResult(false, "");
@@ -150,7 +151,7 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
         else
         {
             var url = Path.Combine(coreInfo.Url, "latest");
-            var lastUrl = await downloadHandle.UrlRedirectAsync(url, true);
+            var lastUrl = await downloadHandle.UrlRedirectAsync(url, true, _systemProxyFirst);
             if (lastUrl == null)
             {
                 return new UpdateResult(false, "");
@@ -461,7 +462,7 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
             _ = UpdateFunc(false, args.GetException().Message);
         };
 
-        await downloadHandle.DownloadFileAsync(url, tmpFileName, true, _timeout);
+        await downloadHandle.DownloadFileAsync(url, tmpFileName, true, _timeout, _systemProxyFirst);
     }
 
     #endregion Geo private
