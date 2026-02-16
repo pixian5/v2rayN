@@ -1,5 +1,7 @@
 namespace ServiceLib.Manager;
 
+using ServiceLib.ViewModels;
+
 public class TaskManager
 {
     private static readonly Lazy<TaskManager> _instance = new(() => new());
@@ -68,6 +70,15 @@ public class TaskManager
                 {
                     Logging.SaveLog("ScheduledTasks - UpdateTaskRunGeo", ex);
                 }
+
+                try
+                {
+                    await UpdateTaskRunCheckUpdate();
+                }
+                catch (Exception ex)
+                {
+                    Logging.SaveLog("ScheduledTasks - UpdateTaskRunCheckUpdate", ex);
+                }
             }
 
             numOfExecuted++;
@@ -115,6 +126,41 @@ public class TaskManager
             {
                 await _updateFunc?.Invoke(false, msg);
             }).UpdateGeoFileAll();
+        }
+    }
+
+    private async Task UpdateTaskRunCheckUpdate()
+    {
+        var utcHour = Math.Clamp(_config.CheckUpdateItem.AutoCheckUpdateUtcHour, 0, 23);
+        var nowUtc = DateTime.UtcNow;
+        if (nowUtc.Hour != utcHour)
+        {
+            return;
+        }
+
+        var utcDay = nowUtc.Year * 10000 + nowUtc.Month * 100 + nowUtc.Day;
+        if (_config.CheckUpdateItem.LastAutoCheckUpdateUtcDay == utcDay)
+        {
+            return;
+        }
+
+        _config.CheckUpdateItem.LastAutoCheckUpdateUtcDay = utcDay;
+        await ConfigHandler.SaveConfig(_config);
+
+        Logging.SaveLog($"Execute scheduled check update. UTC hour={utcHour}, mode={_config.CheckUpdateItem.AutoCheckUpdateType}");
+        await _updateFunc?.Invoke(false, $"执行定时更新任务 (UTC{utcHour})");
+
+        var vm = new CheckUpdateViewModel(
+            (_, _) => Task.FromResult(true),
+            async (success, msg) => await _updateFunc?.Invoke(success, msg));
+
+        if (_config.CheckUpdateItem.AutoCheckUpdateType == EAutoCheckUpdateType.CheckAndUpdate)
+        {
+            await vm.ScheduledCheckAndUpdateAsync();
+        }
+        else
+        {
+            await vm.ScheduledCheckOnlyAsync();
         }
     }
 }

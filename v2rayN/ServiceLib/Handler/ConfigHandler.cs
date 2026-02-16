@@ -170,6 +170,11 @@ public static class ConfigHandler
             config.SystemProxyItem.SystemProxyExceptions = Utils.IsWindows() ? Global.SystemProxyExceptionsWindows : Global.SystemProxyExceptionsLinux;
         }
 
+        if (config.GuiItem.AutoUpdateInterval <= 0)
+        {
+            config.GuiItem.AutoUpdateInterval = 24;
+        }
+
         if (!Enum.IsDefined(config.SystemProxyItem.SysProxyType))
         {
             config.SystemProxyItem.SysProxyType = ESysProxyType.Unchanged;
@@ -178,6 +183,16 @@ public static class ConfigHandler
         if (config.SystemProxyItem.LastSysProxyType is not ESysProxyType lastType || !Enum.IsDefined(lastType))
         {
             config.SystemProxyItem.LastSysProxyType = config.SystemProxyItem.SysProxyType;
+        }
+
+        if (!Enum.IsDefined(config.CheckUpdateItem.AutoCheckUpdateType))
+        {
+            config.CheckUpdateItem.AutoCheckUpdateType = EAutoCheckUpdateType.CheckOnly;
+        }
+
+        if (config.CheckUpdateItem.AutoCheckUpdateUtcHour is < 0 or > 23)
+        {
+            config.CheckUpdateItem.AutoCheckUpdateUtcHour = 12;
         }
 
         return config;

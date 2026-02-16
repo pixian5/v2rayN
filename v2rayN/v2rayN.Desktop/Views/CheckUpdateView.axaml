@@ -21,17 +21,45 @@
             <StackPanel
                 Margin="{StaticResource Margin4}"
                 HorizontalAlignment="Center"
-                Orientation="Horizontal">
+                Orientation="Vertical">
 
-                <TextBlock
-                    Margin="{StaticResource Margin4}"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    Text="{x:Static resx:ResUI.TbSettingsEnableCheckPreReleaseUpdate}" />
-                <ToggleSwitch
-                    x:Name="togEnableCheckPreReleaseUpdate"
-                    Margin="{StaticResource Margin4}"
-                    HorizontalAlignment="Left" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock
+                        Margin="{StaticResource Margin4}"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Text="{x:Static resx:ResUI.TbSettingsEnableCheckPreReleaseUpdate}" />
+                    <ToggleSwitch
+                        x:Name="togEnableCheckPreReleaseUpdate"
+                        Margin="{StaticResource Margin4}"
+                        HorizontalAlignment="Left" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <ComboBox
+                        x:Name="cmbAutoCheckUpdateType"
+                        Width="180"
+                        Margin="{StaticResource Margin4}"
+                        SelectedIndex="0">
+                        <ComboBoxItem Content="定时检查更新" />
+                        <ComboBoxItem Content="定时检查并更新" />
+                    </ComboBox>
+
+                    <TextBlock
+                        Margin="{StaticResource Margin4}"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Text="UTC" />
+                    <TextBox
+                        x:Name="txtAutoCheckUpdateUtcHour"
+                        Width="50"
+                        Margin="{StaticResource Margin4}" />
+                    <TextBlock
+                        Margin="{StaticResource Margin4}"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Text="时" />
+                </StackPanel>
 
                 <Button
                     x:Name="btnCheckUpdate"

@@ -109,6 +109,31 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
         await UpdateFunc(true, string.Format(ResUI.MsgDownloadGeoFileSuccessfully, "geo"));
     }
 
+    public async Task<UpdateResult> CheckUpdateOnly(ECoreType type, bool preRelease)
+    {
+        try
+        {
+            DownloadService downloadHandle = new();
+            var result = await CheckUpdateAsync(downloadHandle, type, preRelease);
+            if (result.Success)
+            {
+                var version = result.Version?.ToString() ?? "unknown";
+                return new UpdateResult(true, $"{type} 发现新版本: {version}") { Version = result.Version, Url = result.Url };
+            }
+
+            if (result.Msg.IsNullOrEmpty())
+            {
+                return new UpdateResult(false, $"{type} 已是最新版本");
+            }
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog(_tag, ex);
+            return new UpdateResult(false, ex.Message);
+        }
+    }
+
     #region CheckUpdate private
 
     private async Task<UpdateResult> CheckUpdateAsync(DownloadService downloadHandle, ECoreType type, bool preRelease)

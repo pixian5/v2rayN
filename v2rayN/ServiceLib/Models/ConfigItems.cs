@@ -236,6 +236,9 @@ public class WebDavItem
 public class CheckUpdateItem
 {
     public bool CheckPreReleaseUpdate { get; set; }
+    public EAutoCheckUpdateType AutoCheckUpdateType { get; set; } = EAutoCheckUpdateType.CheckOnly;
+    public int AutoCheckUpdateUtcHour { get; set; } = 12;
+    public int LastAutoCheckUpdateUtcDay { get; set; }
     public List<string>? SelectedCoreTypes { get; set; }
 }
 

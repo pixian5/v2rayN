@@ -6,15 +6,21 @@ public class CheckUpdateViewModel : MyReactiveObject
     private readonly string _v2rayN = ECoreType.v2rayN.ToString();
     private List<CheckUpdateModel> _lstUpdated = [];
     private static readonly string _tag = "CheckUpdateViewModel";
+    private readonly Func<bool, string, Task>? _scheduledUpdateFunc;
 
     public IObservableCollection<CheckUpdateModel> CheckUpdateModels { get; } = new ObservableCollectionExtended<CheckUpdateModel>();
     public ReactiveCommand<Unit, Unit> CheckUpdateCmd { get; }
     [Reactive] public bool EnableCheckPreReleaseUpdate { get; set; }
+    [Reactive] public int AutoCheckUpdateTypeSelected { get; set; }
+    [Reactive] public int AutoCheckUpdateUtcHour { get; set; }
 
-    public CheckUpdateViewModel(Func<EViewAction, object?, Task<bool>>? updateView)
+    public CheckUpdateViewModel(
+        Func<EViewAction, object?, Task<bool>>? updateView,
+        Func<bool, string, Task>? scheduledUpdateFunc = null)
     {
         _config = AppManager.Instance.Config;
         _updateView = updateView;
+        _scheduledUpdateFunc = scheduledUpdateFunc;
 
         CheckUpdateCmd = ReactiveCommand.CreateFromTask(CheckUpdate);
         CheckUpdateCmd.ThrownExceptions.Subscribe(ex =>
@@ -24,13 +30,40 @@ public class CheckUpdateViewModel : MyReactiveObject
         });
 
         EnableCheckPreReleaseUpdate = _config.CheckUpdateItem.CheckPreReleaseUpdate;
+        AutoCheckUpdateTypeSelected = (int)_config.CheckUpdateItem.AutoCheckUpdateType;
+        AutoCheckUpdateUtcHour = Math.Clamp(_config.CheckUpdateItem.AutoCheckUpdateUtcHour, 0, 23);
 
         this.WhenAnyValue(
-        x => x.EnableCheckPreReleaseUpdate,
-        y => y == true)
-            .Subscribe(c => _config.CheckUpdateItem.CheckPreReleaseUpdate = EnableCheckPreReleaseUpdate);
+            x => x.EnableCheckPreReleaseUpdate)
+            .Subscribe(async _ => await SaveCheckUpdateSettings());
+
+        this.WhenAnyValue(
+            x => x.AutoCheckUpdateTypeSelected)
+            .Subscribe(async _ => await SaveCheckUpdateSettings());
+
+        this.WhenAnyValue(
+            x => x.AutoCheckUpdateUtcHour)
+            .Subscribe(async _ => await SaveCheckUpdateSettings());
 
         RefreshCheckUpdateItems();
+    }
+
+    private async Task SaveCheckUpdateSettings()
+    {
+        var utcHour = Math.Clamp(AutoCheckUpdateUtcHour, 0, 23);
+        if (AutoCheckUpdateUtcHour != utcHour)
+        {
+            AutoCheckUpdateUtcHour = utcHour;
+            return;
+        }
+
+        _config.CheckUpdateItem.CheckPreReleaseUpdate = EnableCheckPreReleaseUpdate;
+        _config.CheckUpdateItem.AutoCheckUpdateType = Enum.IsDefined(typeof(EAutoCheckUpdateType), AutoCheckUpdateTypeSelected)
+            ? (EAutoCheckUpdateType)AutoCheckUpdateTypeSelected
+            : EAutoCheckUpdateType.CheckOnly;
+        _config.CheckUpdateItem.AutoCheckUpdateUtcHour = utcHour;
+
+        await ConfigHandler.SaveConfig(_config);
     }
 
     private void RefreshCheckUpdateItems()
@@ -80,6 +113,55 @@ public class CheckUpdateViewModel : MyReactiveObject
     private async Task CheckUpdate()
     {
         await Task.Run(CheckUpdateTask);
+    }
+
+    public async Task ScheduledCheckAndUpdateAsync()
+    {
+        await Task.Run(CheckUpdateTask);
+    }
+
+    public async Task ScheduledCheckOnlyAsync()
+    {
+        await SaveSelectedCoreTypes();
+
+        var selectedItems = CheckUpdateModels.Where(x => x.IsSelected == true).ToList();
+        if (selectedItems.Count == 0)
+        {
+            await UpdateView(_v2rayN, "未选择任何更新项");
+            return;
+        }
+
+        foreach (var item in selectedItems)
+        {
+            if (item.CoreType.IsNullOrEmpty())
+            {
+                continue;
+            }
+
+            if (item.CoreType == _geo)
+            {
+                await UpdateView(_geo, "Geo 文件暂不支持仅检查，已跳过");
+                continue;
+            }
+
+            if (item.CoreType == _v2rayN && Utils.IsPackagedInstall())
+            {
+                await UpdateView(_v2rayN, "Not Support");
+                continue;
+            }
+
+            if (!Enum.TryParse<ECoreType>(item.CoreType, out var type))
+            {
+                continue;
+            }
+
+            var preRelease = item.CoreType == _v2rayN || item.CoreType == ECoreType.Xray.ToString()
+                ? EnableCheckPreReleaseUpdate
+                : false;
+
+            var result = await new UpdateService(_config, async (_, _) => await Task.CompletedTask).CheckUpdateOnly(type, preRelease);
+            await UpdateView(item.CoreType, result.Msg ?? string.Empty);
+        }
     }
 
     private async Task CheckUpdateTask()
@@ -316,6 +398,11 @@ public class CheckUpdateViewModel : MyReactiveObject
             CoreType = coreType,
             Remarks = msg,
         };
+
+        if (_scheduledUpdateFunc != null && msg.IsNotEmpty())
+        {
+            await _scheduledUpdateFunc(false, $"[{coreType}] {msg}");
+        }
 
         RxApp.MainThreadScheduler.Schedule(item, (scheduler, model) =>
         {
