@@ -4,7 +4,7 @@ public static class SubscriptionHandler
 {
     public static async Task UpdateProcess(Config config, string subId, bool blProxy, Func<bool, string, Task> updateFunc)
     {
-        await updateFunc?.Invoke(false, ResUI.MsgUpdateSubscriptionStart);
+        await updateFunc?.Invoke(false, GetUpdateModeText(subId, blProxy));
         var subItem = await AppManager.Instance.SubItems();
 
         if (subItem is not { Count: > 0 })
@@ -55,6 +55,16 @@ public static class SubscriptionHandler
         }
 
         await updateFunc?.Invoke(successCount > 0, $"{ResUI.MsgUpdateSubscriptionEnd}");
+    }
+
+    private static string GetUpdateModeText(string subId, bool blProxy)
+    {
+        if (subId.IsNullOrEmpty())
+        {
+            return blProxy ? ResUI.menuSubUpdateViaProxy : ResUI.menuSubUpdate;
+        }
+
+        return blProxy ? ResUI.menuSubGroupUpdateViaProxy : ResUI.menuSubGroupUpdate;
     }
 
     private static bool IsValidSubscription(SubItem item, string subId)
