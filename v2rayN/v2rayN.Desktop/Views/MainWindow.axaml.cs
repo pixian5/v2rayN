@@ -13,6 +13,8 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
     private CheckUpdateView? _checkUpdateView;
     private BackupAndRestoreView? _backupAndRestoreView;
     private bool _blCloseByUser = false;
+    private int? _lastNormalLeft;
+    private int? _lastNormalTop;
 
     public MainWindow()
     {
@@ -22,6 +24,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         _manager = new WindowNotificationManager(TopLevel.GetTopLevel(this)) { MaxItems = 3, Position = NotificationPosition.TopRight };
 
         KeyDown += MainWindow_KeyDown;
+        PositionChanged += (_, _) => RememberWindowPosition();
         menuSettingsSetUWP.Click += MenuSettingsSetUWP_Click;
         menuPromotion.Click += MenuPromotion_Click;
         menuCheckUpdate.Click += MenuCheckUpdate_Click;
@@ -439,6 +442,8 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         }
         else
         {
+            RememberWindowPosition();
+
             if (Utils.IsLinux() && _config.UiItem.Hide2TrayWhenClose == false)
             {
                 WindowState = WindowState.Minimized;
@@ -463,6 +468,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
             ShowHideWindow(false);
         }
         RestoreUI();
+        RememberWindowPosition();
     }
 
     private void RestoreUI()
@@ -482,15 +488,27 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         }
     }
 
+    private void RememberWindowPosition()
+    {
+        if (WindowState != WindowState.Normal)
+        {
+            return;
+        }
+
+        if (Position.X < -10000 || Position.Y < -10000)
+        {
+            return;
+        }
+
+        _lastNormalLeft = Position.X;
+        _lastNormalTop = Position.Y;
+    }
+
     private void StorageUI()
     {
-        double? left = Position.X;
-        double? top = Position.Y;
-        if (WindowState != WindowState.Normal || left < -10000 || top < -10000)
-        {
-            left = null;
-            top = null;
-        }
+        RememberWindowPosition();
+        double? left = _lastNormalLeft;
+        double? top = _lastNormalTop;
 
         ConfigHandler.SaveWindowSizeItem(_config, GetType().Name, Width, Height, left, top);
 
