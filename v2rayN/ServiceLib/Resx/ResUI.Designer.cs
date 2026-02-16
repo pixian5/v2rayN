@@ -923,6 +923,15 @@ namespace ServiceLib.Resx {
                 return ResourceManager.GetString("menuClose", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   查找类似 Minimize 的本地化字符串。
+        /// </summary>
+        public static string menuMinimize {
+            get {
+                return ResourceManager.GetString("menuMinimize", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   查找类似 Close Connection 的本地化字符串。
@@ -1418,7 +1427,16 @@ namespace ServiceLib.Resx {
                 return ResourceManager.GetString("menuRealPingServer", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   查找类似 Reboot 的本地化字符串。
+        /// </summary>
+        public static string menuReboot {
+            get {
+                return ResourceManager.GetString("menuReboot", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   查找类似 Restart as Administrator 的本地化字符串。
         /// </summary>

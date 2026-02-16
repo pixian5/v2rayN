@@ -103,11 +103,11 @@
 
                     <MenuItem x:Name="menuReload" Header="{x:Static resx:ResUI.menuReload}" />
 
-                    <MenuItem x:Name="menuReboot" Header="重启" />
+                    <MenuItem x:Name="menuReboot" Header="{x:Static resx:ResUI.menuReboot}" />
 
                     <MenuItem x:Name="menuPromotion" Header="{x:Static resx:ResUI.menuPromotion}" />
 
-                    <MenuItem x:Name="menuClose" Header="最小化" />
+                    <MenuItem x:Name="menuClose" Header="{x:Static resx:ResUI.menuMinimize}" />
                 </Menu>
             </DockPanel>
 

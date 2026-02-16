@@ -73,7 +73,7 @@
                     <Button.Content>
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <PathIcon Data="{StaticResource SemiIconExpand}" />
-                            <TextBlock Text="自动调整列宽" />
+                            <TextBlock Text="{x:Static resx:ResUI.menuProfileAutofitColumnWidth}" />
                         </StackPanel>
                     </Button.Content>
                 </Button>
@@ -86,7 +86,7 @@
                     <Button.Content>
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <PathIcon Data="{StaticResource SemiIconBolt}" />
-                            <TextBlock Text="测试延迟" />
+                            <TextBlock Text="{x:Static resx:ResUI.menuProxiesDelaytest}" />
                         </StackPanel>
                     </Button.Content>
                 </Button>
@@ -98,7 +98,7 @@
                     <Button.Content>
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <PathIcon Data="{StaticResource building_ping}" />
-                            <TextBlock Text="测试下载速度" />
+                            <TextBlock Text="{x:Static resx:ResUI.menuSpeedServer}" />
                         </StackPanel>
                     </Button.Content>
                 </Button>
