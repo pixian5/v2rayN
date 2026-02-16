@@ -1671,4 +1671,94 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   <data name="menuServerListPreview" xml:space="preserve">
     <value>Configuration item preview</value>
   </data>
+  <data name="LogAppStartup" xml:space="preserve">
+    <value>v2rayN start up | {0}</value>
+  </data>
+  <data name="LogAppExitBegin" xml:space="preserve">
+    <value>AppExitAsync Begin</value>
+  </data>
+  <data name="LogAppExitEnd" xml:space="preserve">
+    <value>AppExitAsync End</value>
+  </data>
+  <data name="LogOnClosing" xml:space="preserve">
+    <value>OnClosing -&gt; {0}</value>
+  </data>
+  <data name="LogLoadConfigException" xml:space="preserve">
+    <value>LoadConfig Exception</value>
+  </data>
+  <data name="LogSetupScheduledTasks" xml:space="preserve">
+    <value>Setup Scheduled Tasks</value>
+  </data>
+  <data name="LogScheduledTaskUpdateSubscription" xml:space="preserve">
+    <value>ScheduledTasks - UpdateTaskRunSubscription</value>
+  </data>
+  <data name="LogScheduledTaskSaveConfig" xml:space="preserve">
+    <value>ScheduledTasks - SaveConfig</value>
+  </data>
+  <data name="LogScheduledTaskUpdateGeo" xml:space="preserve">
+    <value>ScheduledTasks - UpdateTaskRunGeo</value>
+  </data>
+  <data name="LogScheduledTaskCheckUpdate" xml:space="preserve">
+    <value>ScheduledTasks - UpdateTaskRunCheckUpdate</value>
+  </data>
+  <data name="LogExecuteUpdateSubscription" xml:space="preserve">
+    <value>Execute update subscription</value>
+  </data>
+  <data name="LogUpdateSubscriptionEnd" xml:space="preserve">
+    <value>Update subscription end. {0}</value>
+  </data>
+  <data name="LogExecuteUpdateGeoFiles" xml:space="preserve">
+    <value>Execute update geo files</value>
+  </data>
+  <data name="LogExecuteScheduledCheckUpdate" xml:space="preserve">
+    <value>Execute scheduled check update. UTC hour={0}, mode={1}</value>
+  </data>
+  <data name="LogMigrateProfileExtraError" xml:space="preserve">
+    <value>MigrateProfileExtra Error: {0}</value>
+  </data>
+  <data name="LogMigrateProfileExtraGroupUpdateError" xml:space="preserve">
+    <value>MigrateProfileExtraGroup update error: {0}</value>
+  </data>
+  <data name="LogMigrateProfileExtraGroupNoItems" xml:space="preserve">
+    <value>MigrateProfileExtraGroup: No items to migrate.</value>
+  </data>
+  <data name="LogMigrateProfileExtraGroupFoundItems" xml:space="preserve">
+    <value>MigrateProfileExtraGroup: Found {0} group items to migrate.</value>
+  </data>
+  <data name="LogMigrateProfileExtraGroupItemError" xml:space="preserve">
+    <value>MigrateProfileExtraGroup item error [{0}]: {1}</value>
+  </data>
+  <data name="LogMigrateProfileExtraGroupUpdatedItems" xml:space="preserve">
+    <value>MigrateProfileExtraGroup: Successfully updated {0} items.</value>
+  </data>
+  <data name="LogStatusCodeError" xml:space="preserve">
+    <value>StatusCode error: {0}</value>
+  </data>
+  <data name="LogDownloadFileProxyFallback" xml:space="preserve">
+    <value>{0} DownloadFile proxy failed, fallback direct. {1}</value>
+  </data>
+  <data name="LogUpgradeAppNotExist" xml:space="preserve">
+    <value>UpgradeApp does not exist</value>
+  </data>
+  <data name="LogAssignProcessToJobObjectFailed" xml:space="preserve">
+    <value>Failed to call AssignProcessToJobObject! GetLastError={0}</value>
+  </data>
+  <data name="LogConnectionTimeoutAfterSeconds" xml:space="preserve">
+    <value>Connection timeout after {0} seconds</value>
+  </data>
+  <data name="LogSetFileExecutionPermissionSuccess" xml:space="preserve">
+    <value>Successfully set the file execution permission, {0}</value>
+  </data>
+  <data name="LogUpdateSubscriptionTitle" xml:space="preserve">
+    <value>UpdateSubscription</value>
+  </data>
+  <data name="LogUnhandledExceptionTitle" xml:space="preserve">
+    <value>CurrentDomain_UnhandledException</value>
+  </data>
+  <data name="LogUnobservedTaskExceptionTitle" xml:space="preserve">
+    <value>TaskScheduler_UnobservedTaskException</value>
+  </data>
+  <data name="LogFailedImportSubscription" xml:space="preserve">
+    <value>Failed import subscription</value>
+  </data>
 </root>

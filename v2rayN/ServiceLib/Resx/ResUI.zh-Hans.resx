@@ -1668,4 +1668,94 @@
   <data name="menuServerListPreview" xml:space="preserve">
     <value>子配置项预览</value>
   </data>
+  <data name="LogAppStartup" xml:space="preserve">
+    <value>v2rayN 启动 | {0}</value>
+  </data>
+  <data name="LogAppExitBegin" xml:space="preserve">
+    <value>应用退出流程开始</value>
+  </data>
+  <data name="LogAppExitEnd" xml:space="preserve">
+    <value>应用退出流程结束</value>
+  </data>
+  <data name="LogOnClosing" xml:space="preserve">
+    <value>窗口关闭事件 -&gt; {0}</value>
+  </data>
+  <data name="LogLoadConfigException" xml:space="preserve">
+    <value>加载配置异常</value>
+  </data>
+  <data name="LogSetupScheduledTasks" xml:space="preserve">
+    <value>初始化计划任务</value>
+  </data>
+  <data name="LogScheduledTaskUpdateSubscription" xml:space="preserve">
+    <value>计划任务 - 更新订阅任务</value>
+  </data>
+  <data name="LogScheduledTaskSaveConfig" xml:space="preserve">
+    <value>计划任务 - 保存配置</value>
+  </data>
+  <data name="LogScheduledTaskUpdateGeo" xml:space="preserve">
+    <value>计划任务 - 更新 Geo 文件</value>
+  </data>
+  <data name="LogScheduledTaskCheckUpdate" xml:space="preserve">
+    <value>计划任务 - 检查更新</value>
+  </data>
+  <data name="LogExecuteUpdateSubscription" xml:space="preserve">
+    <value>执行订阅更新</value>
+  </data>
+  <data name="LogUpdateSubscriptionEnd" xml:space="preserve">
+    <value>订阅更新结束。{0}</value>
+  </data>
+  <data name="LogExecuteUpdateGeoFiles" xml:space="preserve">
+    <value>执行 Geo 文件更新</value>
+  </data>
+  <data name="LogExecuteScheduledCheckUpdate" xml:space="preserve">
+    <value>执行计划更新检查。UTC 小时={0}，模式={1}</value>
+  </data>
+  <data name="LogMigrateProfileExtraError" xml:space="preserve">
+    <value>迁移配置扩展信息出错：{0}</value>
+  </data>
+  <data name="LogMigrateProfileExtraGroupUpdateError" xml:space="preserve">
+    <value>迁移分组配置更新出错：{0}</value>
+  </data>
+  <data name="LogMigrateProfileExtraGroupNoItems" xml:space="preserve">
+    <value>迁移分组配置：没有需要迁移的项目。</value>
+  </data>
+  <data name="LogMigrateProfileExtraGroupFoundItems" xml:space="preserve">
+    <value>迁移分组配置：发现 {0} 个需要迁移的分组项目。</value>
+  </data>
+  <data name="LogMigrateProfileExtraGroupItemError" xml:space="preserve">
+    <value>迁移分组配置项目出错 [{0}]：{1}</value>
+  </data>
+  <data name="LogMigrateProfileExtraGroupUpdatedItems" xml:space="preserve">
+    <value>迁移分组配置：成功更新 {0} 项。</value>
+  </data>
+  <data name="LogStatusCodeError" xml:space="preserve">
+    <value>状态码异常：{0}</value>
+  </data>
+  <data name="LogDownloadFileProxyFallback" xml:space="preserve">
+    <value>{0} 下载经代理失败，回退直连。{1}</value>
+  </data>
+  <data name="LogUpgradeAppNotExist" xml:space="preserve">
+    <value>升级程序不存在</value>
+  </data>
+  <data name="LogAssignProcessToJobObjectFailed" xml:space="preserve">
+    <value>调用 AssignProcessToJobObject 失败！错误码={0}</value>
+  </data>
+  <data name="LogConnectionTimeoutAfterSeconds" xml:space="preserve">
+    <value>连接超时，耗时 {0} 秒</value>
+  </data>
+  <data name="LogSetFileExecutionPermissionSuccess" xml:space="preserve">
+    <value>成功设置文件执行权限：{0}</value>
+  </data>
+  <data name="LogUpdateSubscriptionTitle" xml:space="preserve">
+    <value>更新订阅</value>
+  </data>
+  <data name="LogUnhandledExceptionTitle" xml:space="preserve">
+    <value>未处理异常</value>
+  </data>
+  <data name="LogUnobservedTaskExceptionTitle" xml:space="preserve">
+    <value>未观察到的任务异常</value>
+  </data>
+  <data name="LogFailedImportSubscription" xml:space="preserve">
+    <value>导入订阅失败</value>
+  </data>
 </root>

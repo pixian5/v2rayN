@@ -66,7 +66,11 @@ public sealed class AppManager
             return false;
         }
         _config = config;
-        Thread.CurrentThread.CurrentUICulture = new(_config.UiItem.CurrentLanguage);
+        var uiCulture = new System.Globalization.CultureInfo(_config.UiItem.CurrentLanguage);
+        Thread.CurrentThread.CurrentUICulture = uiCulture;
+        Thread.CurrentThread.CurrentCulture = uiCulture;
+        System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = uiCulture;
+        System.Globalization.CultureInfo.DefaultThreadCurrentCulture = uiCulture;
 
         //Under Win10
         if (Utils.IsWindows() && Environment.OSVersion.Version.Major < 10)
