@@ -146,6 +146,11 @@ public class TaskManager
 
         _config.CheckUpdateItem.LastAutoCheckUpdateUtcDay = utcDay;
         await ConfigHandler.SaveConfig(_config);
+        if (_config.CheckUpdateItem.AutoCheckUpdateType != EAutoCheckUpdateType.CheckAndUpdate)
+        {
+            Logging.SaveLog($"Skip scheduled check update. UTC hour={utcHour}, mode={_config.CheckUpdateItem.AutoCheckUpdateType}");
+            return;
+        }
 
         Logging.SaveLog($"Execute scheduled check update. UTC hour={utcHour}, mode={_config.CheckUpdateItem.AutoCheckUpdateType}");
         await _updateFunc?.Invoke(false, $"执行定时更新任务 (UTC{utcHour})");
@@ -154,13 +159,7 @@ public class TaskManager
             (_, _) => Task.FromResult(true),
             async (success, msg) => await _updateFunc?.Invoke(success, msg));
 
-        if (_config.CheckUpdateItem.AutoCheckUpdateType == EAutoCheckUpdateType.CheckAndUpdate)
-        {
-            await vm.ScheduledCheckAndUpdateAsync();
-        }
-        else
-        {
-            await vm.ScheduledCheckOnlyAsync();
-        }
+        await vm.ScheduledCheckAndUpdateAsync();
     }
 }
+

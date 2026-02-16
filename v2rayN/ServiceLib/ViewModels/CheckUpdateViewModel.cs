@@ -37,7 +37,7 @@ public class CheckUpdateViewModel : MyReactiveObject
         });
 
         EnableCheckPreReleaseUpdate = _config.CheckUpdateItem.CheckPreReleaseUpdate;
-        AutoCheckUpdateTypeSelected = (int)_config.CheckUpdateItem.AutoCheckUpdateType;
+        AutoCheckUpdateTypeSelected = _config.CheckUpdateItem.AutoCheckUpdateType == EAutoCheckUpdateType.CheckAndUpdate ? 0 : 1;
         AutoCheckUpdateUtcHour = Math.Clamp(_config.CheckUpdateItem.AutoCheckUpdateUtcHour, 0, 23);
 
         this.WhenAnyValue(
@@ -65,8 +65,15 @@ public class CheckUpdateViewModel : MyReactiveObject
         }
 
         _config.CheckUpdateItem.CheckPreReleaseUpdate = EnableCheckPreReleaseUpdate;
-        _config.CheckUpdateItem.AutoCheckUpdateType = Enum.IsDefined(typeof(EAutoCheckUpdateType), AutoCheckUpdateTypeSelected)
-            ? (EAutoCheckUpdateType)AutoCheckUpdateTypeSelected
+        var selectedMode = AutoCheckUpdateTypeSelected == 0 ? 0 : 1;
+        if (AutoCheckUpdateTypeSelected != selectedMode)
+        {
+            AutoCheckUpdateTypeSelected = selectedMode;
+            return;
+        }
+
+        _config.CheckUpdateItem.AutoCheckUpdateType = selectedMode == 0
+            ? EAutoCheckUpdateType.CheckAndUpdate
             : EAutoCheckUpdateType.CheckOnly;
         _config.CheckUpdateItem.AutoCheckUpdateUtcHour = utcHour;
 
@@ -101,7 +108,7 @@ public class CheckUpdateViewModel : MyReactiveObject
             {
                 IsSelected = false,
                 CoreType = coreType,
-                Remarks = ResUI.menuCheckUpdate + " (Not Support)",
+                Remarks = "立即更新 (Not Support)",
                 ShowCheckUpdateButton = false,
             };
         }
