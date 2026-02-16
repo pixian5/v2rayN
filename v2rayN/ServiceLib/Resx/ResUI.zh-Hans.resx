@@ -457,7 +457,7 @@
     <value>清除系统代理</value>
   </data>
   <data name="menuSystemProxyNothing" xml:space="preserve">
-    <value>不改变系统代理</value>
+    <value>躺平</value>
   </data>
   <data name="menuSystemProxyPac" xml:space="preserve">
     <value>Pac 模式</value>
@@ -769,7 +769,7 @@
     <value>直接按键盘进行设置，重启后生效</value>
   </data>
   <data name="TbNotChangeSystemProxy" xml:space="preserve">
-    <value>不改变系统代理</value>
+    <value>躺平</value>
   </data>
   <data name="TbReset" xml:space="preserve">
     <value>重置</value>
