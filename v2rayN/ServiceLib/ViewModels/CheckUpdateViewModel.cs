@@ -10,6 +10,7 @@ public class CheckUpdateViewModel : MyReactiveObject
 
     public IObservableCollection<CheckUpdateModel> CheckUpdateModels { get; } = new ObservableCollectionExtended<CheckUpdateModel>();
     public ReactiveCommand<Unit, Unit> CheckUpdateCmd { get; }
+    public ReactiveCommand<CheckUpdateModel, Unit> CheckUpdateItemCmd { get; }
     [Reactive] public bool EnableCheckPreReleaseUpdate { get; set; }
     [Reactive] public int AutoCheckUpdateTypeSelected { get; set; }
     [Reactive] public int AutoCheckUpdateUtcHour { get; set; }
@@ -24,6 +25,12 @@ public class CheckUpdateViewModel : MyReactiveObject
 
         CheckUpdateCmd = ReactiveCommand.CreateFromTask(CheckUpdate);
         CheckUpdateCmd.ThrownExceptions.Subscribe(ex =>
+        {
+            Logging.SaveLog(_tag, ex);
+            _ = UpdateView(_v2rayN, ex.Message);
+        });
+        CheckUpdateItemCmd = ReactiveCommand.CreateFromTask<CheckUpdateModel>(CheckUpdateItem);
+        CheckUpdateItemCmd.ThrownExceptions.Subscribe(ex =>
         {
             Logging.SaveLog(_tag, ex);
             _ = UpdateView(_v2rayN, ex.Message);
@@ -93,6 +100,7 @@ public class CheckUpdateViewModel : MyReactiveObject
                 IsSelected = false,
                 CoreType = coreType,
                 Remarks = ResUI.menuCheckUpdate + " (Not Support)",
+                ShowCheckUpdateButton = false,
             };
         }
 
@@ -100,7 +108,7 @@ public class CheckUpdateViewModel : MyReactiveObject
         {
             IsSelected = _config.CheckUpdateItem.SelectedCoreTypes?.Contains(coreType) ?? true,
             CoreType = coreType,
-            Remarks = ResUI.menuCheckUpdate,
+            Remarks = string.Empty,
         };
     }
 
@@ -113,6 +121,44 @@ public class CheckUpdateViewModel : MyReactiveObject
     private async Task CheckUpdate()
     {
         await Task.Run(CheckUpdateTask);
+    }
+
+    private async Task CheckUpdateItem(CheckUpdateModel? item)
+    {
+        if (item?.CoreType.IsNullOrEmpty() != false)
+        {
+            return;
+        }
+
+        item.ShowCheckUpdateButton = false;
+
+        _lstUpdated.Clear();
+        _lstUpdated.Add(new CheckUpdateModel() { CoreType = item.CoreType });
+
+        await UpdateView(item.CoreType, "...");
+        if (item.CoreType == _geo)
+        {
+            await CheckUpdateGeo();
+        }
+        else if (item.CoreType == _v2rayN)
+        {
+            if (Utils.IsPackagedInstall())
+            {
+                await UpdateView(_v2rayN, "Not Support");
+                return;
+            }
+            await CheckUpdateN(EnableCheckPreReleaseUpdate);
+        }
+        else if (item.CoreType == ECoreType.Xray.ToString())
+        {
+            await CheckUpdateCore(item, EnableCheckPreReleaseUpdate);
+        }
+        else
+        {
+            await CheckUpdateCore(item, false);
+        }
+
+        await UpdateFinished();
     }
 
     public async Task ScheduledCheckAndUpdateAsync()
@@ -420,6 +466,10 @@ public class CheckUpdateViewModel : MyReactiveObject
             return;
         }
         found.Remarks = model.Remarks;
+        if (model.Remarks.IsNotEmpty())
+        {
+            found.ShowCheckUpdateButton = false;
+        }
         await Task.CompletedTask;
     }
 }

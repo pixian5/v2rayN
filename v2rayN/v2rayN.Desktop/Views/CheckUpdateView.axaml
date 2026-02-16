@@ -8,6 +8,7 @@
     xmlns:vms="clr-namespace:ServiceLib.ViewModels;assembly=ServiceLib"
     d:DesignHeight="600"
     d:DesignWidth="800"
+    x:Name="Root"
     x:DataType="vms:CheckUpdateViewModel"
     mc:Ignorable="d">
 
@@ -99,12 +100,22 @@
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Center"
                                     Text="{Binding CoreType}" />
-                                <TextBlock
+                                <StackPanel
                                     Grid.Column="2"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding Remarks}"
-                                    TextWrapping="WrapWithOverflow" />
+                                    Orientation="Horizontal"
+                                    Spacing="8">
+                                    <Button
+                                        MinWidth="90"
+                                        Content="{x:Static resx:ResUI.menuCheckUpdate}"
+                                        IsVisible="{Binding ShowCheckUpdateButton}"
+                                        Command="{Binding DataContext.CheckUpdateItemCmd, ElementName=Root}"
+                                        CommandParameter="{Binding}" />
+                                    <TextBlock
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        Text="{Binding Remarks}"
+                                        TextWrapping="WrapWithOverflow" />
+                                </StackPanel>
                             </Grid>
                         </Panel>
                     </DataTemplate>
