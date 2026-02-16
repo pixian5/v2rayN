@@ -102,11 +102,10 @@
                                     Text="{Binding CoreType}" />
                                 <Grid
                                     Grid.Column="2"
-                                    ColumnDefinitions="Auto,90,*"
+                                    ColumnDefinitions="Auto,Auto,*"
                                     ColumnSpacing="8">
                                     <TextBlock
                                         Grid.Column="0"
-                                        MinWidth="70"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Center"
                                         Text="{Binding Version}" />
