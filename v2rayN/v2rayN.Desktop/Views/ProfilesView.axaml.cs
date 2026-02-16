@@ -22,6 +22,11 @@ public partial class ProfilesView : ReactiveUserControl<ProfilesViewModel>
 
         menuSelectAll.Click += menuSelectAll_Click;
         btnAutofitColumnWidth.Click += BtnAutofitColumnWidth_Click;
+        btnFastRealPing.Click += SpeedTestTrigger_Click;
+        menuMixedTestServer.Click += SpeedTestTrigger_Click;
+        menuTcpingServer.Click += SpeedTestTrigger_Click;
+        menuRealPingServer.Click += SpeedTestTrigger_Click;
+        menuSpeedServer.Click += SpeedTestTrigger_Click;
         txtServerFilter.KeyDown += TxtServerFilter_KeyDown;
         lstProfiles.KeyDown += LstProfiles_KeyDown;
         lstProfiles.SelectionChanged += lstProfiles_SelectionChanged;
@@ -135,7 +140,7 @@ public partial class ProfilesView : ReactiveUserControl<ProfilesViewModel>
                 break;
 
             case EViewAction.ProfilesFocus:
-                lstProfiles.Focus();
+                FocusProfilesGrid();
                 break;
 
             case EViewAction.ShowYesNo:
@@ -354,6 +359,22 @@ public partial class ProfilesView : ReactiveUserControl<ProfilesViewModel>
     private void BtnAutofitColumnWidth_Click(object? sender, RoutedEventArgs e)
     {
         AutofitColumnWidth();
+    }
+
+    private void SpeedTestTrigger_Click(object? sender, RoutedEventArgs e)
+    {
+        FocusProfilesGrid();
+    }
+
+    private void FocusProfilesGrid()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (lstProfiles.IsVisible)
+            {
+                lstProfiles.Focus();
+            }
+        }, DispatcherPriority.Background);
     }
 
     private void AutofitColumnWidth()
