@@ -10,6 +10,15 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
             => new(Downloaded || other.Downloaded, Failed || other.Failed);
     }
 
+    private readonly record struct RemoteGeoFileInfo(string? ETag, DateTimeOffset? LastModified, long? ContentLength);
+
+    private sealed class GeoFileMeta
+    {
+        public string? ETag { get; set; }
+        public DateTimeOffset? LastModified { get; set; }
+        public long? ContentLength { get; set; }
+    }
+
     private readonly Config? _config = config;
     private readonly Func<bool, string, Task>? _updateFunc = updateFunc;
     private readonly int _timeout = 30;
@@ -479,9 +488,12 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
 
     private async Task<GeoUpdateResult> DownloadGeoFile(string url, string fileName, string targetPath)
     {
+        RemoteGeoFileInfo? remoteInfo = null;
+
         try
         {
-            if (await IsGeoFileUpToDate(url, targetPath))
+            remoteInfo = await GetRemoteGeoFileInfo(url);
+            if (remoteInfo is not null && IsGeoFileUpToDate(targetPath, remoteInfo.Value))
             {
                 return GeoUpdateResult.None;
             }
@@ -504,6 +516,7 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
                     if (File.Exists(tmpFileName))
                     {
                         File.Copy(tmpFileName, targetPath, true);
+                        SaveGeoFileMeta(targetPath, remoteInfo);
 
                         File.Delete(tmpFileName);
                         result = result with { Downloaded = true };
@@ -531,42 +544,81 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
         return result;
     }
 
-    private async Task<bool> IsGeoFileUpToDate(string url, string targetPath)
+    private bool IsGeoFileUpToDate(string targetPath, RemoteGeoFileInfo remoteInfo)
     {
         if (!File.Exists(targetPath))
         {
             return false;
         }
 
-        var remoteLastModified = await GetRemoteLastModified(url);
-        if (remoteLastModified is null)
+        var localMeta = LoadGeoFileMeta(targetPath);
+        var remoteEtag = NormalizeETag(remoteInfo.ETag);
+        var localEtag = NormalizeETag(localMeta?.ETag);
+        if (remoteEtag.IsNotEmpty() && localEtag.IsNotEmpty() && string.Equals(remoteEtag, localEtag, StringComparison.OrdinalIgnoreCase))
         {
-            return false;
+            return true;
         }
 
-        var localLastWriteTime = File.GetLastWriteTimeUtc(targetPath);
-        return remoteLastModified.Value.UtcDateTime <= localLastWriteTime.AddSeconds(1);
+        if (remoteInfo.LastModified is not null)
+        {
+            if (localMeta?.LastModified is not null
+                && remoteInfo.LastModified.Value.UtcDateTime <= localMeta.LastModified.Value.UtcDateTime.AddSeconds(1))
+            {
+                return true;
+            }
+
+            var localLastWriteTime = File.GetLastWriteTimeUtc(targetPath);
+            if (remoteInfo.LastModified.Value.UtcDateTime <= localLastWriteTime.AddSeconds(1))
+            {
+                return true;
+            }
+        }
+
+        if (remoteInfo.ContentLength is > 0)
+        {
+            var localLength = new FileInfo(targetPath).Length;
+            if (localLength == remoteInfo.ContentLength.Value
+                && localMeta?.ContentLength == remoteInfo.ContentLength.Value)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    private async Task<DateTimeOffset?> GetRemoteLastModified(string url)
+    private async Task<RemoteGeoFileInfo?> GetRemoteGeoFileInfo(string url)
     {
-        var lastModified = await TryGetRemoteLastModified(url, true);
-        if (lastModified is not null)
+        if (_systemProxyFirst)
         {
-            return lastModified;
+            var info = await TryGetRemoteGeoFileInfo(url, GetSystemProxy(), true, "system");
+            if (info is not null)
+            {
+                return info;
+            }
         }
 
-        return await TryGetRemoteLastModified(url, false);
+        var localProxy = await GetLocalSocksProxy();
+        if (localProxy is not null)
+        {
+            var info = await TryGetRemoteGeoFileInfo(url, localProxy, true, "local");
+            if (info is not null)
+            {
+                return info;
+            }
+        }
+
+        return await TryGetRemoteGeoFileInfo(url, null, false, "direct");
     }
 
-    private async Task<DateTimeOffset?> TryGetRemoteLastModified(string url, bool useSystemProxy)
+    private async Task<RemoteGeoFileInfo?> TryGetRemoteGeoFileInfo(string url, IWebProxy? proxy, bool useProxy, string proxyMode)
     {
         try
         {
             using var handler = new SocketsHttpHandler
             {
-                Proxy = useSystemProxy ? GetSystemProxy() : null,
-                UseProxy = useSystemProxy
+                Proxy = useProxy ? proxy : null,
+                UseProxy = useProxy
             };
             using var client = new HttpClient(handler);
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(_timeout));
@@ -575,25 +627,127 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
             if (response.IsSuccessStatusCode)
             {
-                return response.Content.Headers.LastModified;
+                var info = ReadRemoteGeoFileInfo(response);
+                if (HasRemoteGeoIdentifier(info))
+                {
+                    return info;
+                }
             }
 
-            if (response.StatusCode == HttpStatusCode.MethodNotAllowed || response.StatusCode == HttpStatusCode.NotImplemented)
+            using var getRequest = new HttpRequestMessage(HttpMethod.Get, url);
+            using var getResponse = await client.SendAsync(getRequest, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+            if (getResponse.IsSuccessStatusCode)
             {
-                using var getRequest = new HttpRequestMessage(HttpMethod.Get, url);
-                using var getResponse = await client.SendAsync(getRequest, HttpCompletionOption.ResponseHeadersRead, cts.Token);
-                if (getResponse.IsSuccessStatusCode)
+                var info = ReadRemoteGeoFileInfo(getResponse);
+                if (HasRemoteGeoIdentifier(info))
                 {
-                    return getResponse.Content.Headers.LastModified;
+                    return info;
                 }
             }
         }
         catch (Exception ex)
         {
-            Logging.SaveLog($"{_tag} TryGetRemoteLastModified failed. proxy={useSystemProxy}; {ex.Message}");
+            Logging.SaveLog($"{_tag} TryGetRemoteGeoFileInfo failed. proxy={proxyMode}; {ex.Message}");
         }
 
         return null;
+    }
+
+    private static RemoteGeoFileInfo ReadRemoteGeoFileInfo(HttpResponseMessage response)
+    {
+        return new RemoteGeoFileInfo(
+            NormalizeETag(response.Headers.ETag?.Tag),
+            response.Content.Headers.LastModified,
+            response.Content.Headers.ContentLength);
+    }
+
+    private static bool HasRemoteGeoIdentifier(RemoteGeoFileInfo info)
+    {
+        return info.ETag.IsNotEmpty() || info.LastModified is not null || info.ContentLength is > 0;
+    }
+
+    private static string NormalizeETag(string? etag)
+    {
+        if (etag.IsNullOrEmpty())
+        {
+            return string.Empty;
+        }
+
+        etag = etag.Trim();
+        if (etag.StartsWith("W/", StringComparison.OrdinalIgnoreCase))
+        {
+            etag = etag[2..];
+        }
+        return etag.Trim('"');
+    }
+
+    private static string GetGeoFileMetaPath(string targetPath)
+    {
+        return $"{targetPath}.meta";
+    }
+
+    private static GeoFileMeta? LoadGeoFileMeta(string targetPath)
+    {
+        var metaPath = GetGeoFileMetaPath(targetPath);
+        if (!File.Exists(metaPath))
+        {
+            return null;
+        }
+
+        try
+        {
+            var json = File.ReadAllText(metaPath);
+            return JsonSerializer.Deserialize<GeoFileMeta>(json);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static void SaveGeoFileMeta(string targetPath, RemoteGeoFileInfo? remoteInfo)
+    {
+        try
+        {
+            var meta = new GeoFileMeta
+            {
+                ETag = NormalizeETag(remoteInfo?.ETag),
+                LastModified = remoteInfo?.LastModified,
+                ContentLength = remoteInfo?.ContentLength ?? new FileInfo(targetPath).Length
+            };
+
+            var json = JsonSerializer.Serialize(meta);
+            File.WriteAllText(GetGeoFileMetaPath(targetPath), json);
+        }
+        catch
+        {
+        }
+    }
+
+    private async Task<IWebProxy?> GetLocalSocksProxy()
+    {
+        var port = AppManager.Instance.GetLocalPort(EInboundProtocol.socks);
+        if (await SocketCheck(Global.Loopback, port) == false)
+        {
+            return null;
+        }
+
+        return new WebProxy($"{Global.Socks5Protocol}{Global.Loopback}:{port}");
+    }
+
+    private static async Task<bool> SocketCheck(string ip, int port)
+    {
+        try
+        {
+            IPEndPoint point = new(IPAddress.Parse(ip), port);
+            using Socket sock = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            await sock.ConnectAsync(point);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private static IWebProxy? GetSystemProxy()
