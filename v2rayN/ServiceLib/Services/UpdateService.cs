@@ -2,6 +2,14 @@ namespace ServiceLib.Services;
 
 public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
 {
+    private readonly record struct GeoUpdateResult(bool Downloaded, bool Failed)
+    {
+        public static GeoUpdateResult None => new(false, false);
+
+        public GeoUpdateResult Merge(GeoUpdateResult other)
+            => new(Downloaded || other.Downloaded, Failed || other.Failed);
+    }
+
     private readonly Config? _config = config;
     private readonly Func<bool, string, Task>? _updateFunc = updateFunc;
     private readonly int _timeout = 30;
@@ -103,10 +111,19 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
 
     public async Task UpdateGeoFileAll()
     {
-        await UpdateGeoFiles();
-        await UpdateOtherFiles();
-        await UpdateSrsFileAll();
-        await UpdateFunc(true, string.Format(ResUI.MsgDownloadGeoFileSuccessfully, "geo"));
+        var result = GeoUpdateResult.None;
+        result = result.Merge(await UpdateGeoFiles());
+        result = result.Merge(await UpdateOtherFiles());
+        result = result.Merge(await UpdateSrsFileAll());
+
+        if (result.Downloaded)
+        {
+            await UpdateFunc(true, string.Format(ResUI.MsgDownloadGeoFileSuccessfully, "geo"));
+        }
+        else if (!result.Failed)
+        {
+            await UpdateFunc(true, string.Format(ResUI.IsLatestN, "Geo", "files"));
+        }
     }
 
     public async Task<UpdateResult> CheckUpdateOnly(ECoreType type, bool preRelease)
@@ -350,12 +367,13 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
 
     #region Geo private
 
-    private async Task UpdateGeoFiles()
+    private async Task<GeoUpdateResult> UpdateGeoFiles()
     {
         var geoUrl = string.IsNullOrEmpty(_config?.ConstItem.GeoSourceUrl)
             ? Global.GeoUrl
             : _config.ConstItem.GeoSourceUrl;
 
+        var result = GeoUpdateResult.None;
         List<string> files = ["geosite", "geoip"];
         foreach (var geoName in files)
         {
@@ -363,28 +381,33 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
             var targetPath = Utils.GetBinPath($"{fileName}");
             var url = string.Format(geoUrl, geoName);
 
-            await DownloadGeoFile(url, fileName, targetPath);
+            result = result.Merge(await DownloadGeoFile(url, fileName, targetPath));
         }
+
+        return result;
     }
 
-    private async Task UpdateOtherFiles()
+    private async Task<GeoUpdateResult> UpdateOtherFiles()
     {
         //If it is not in China area, no update is required
         if (_config.ConstItem.GeoSourceUrl.IsNotEmpty())
         {
-            return;
+            return GeoUpdateResult.None;
         }
 
+        var result = GeoUpdateResult.None;
         foreach (var url in Global.OtherGeoUrls)
         {
             var fileName = Path.GetFileName(url);
             var targetPath = Utils.GetBinPath($"{fileName}");
 
-            await DownloadGeoFile(url, fileName, targetPath);
+            result = result.Merge(await DownloadGeoFile(url, fileName, targetPath));
         }
+
+        return result;
     }
 
-    private async Task UpdateSrsFileAll()
+    private async Task<GeoUpdateResult> UpdateSrsFileAll()
     {
         var geoipFiles = new List<string>();
         var geoSiteFiles = new List<string>();
@@ -427,18 +450,21 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
         {
             Directory.CreateDirectory(path);
         }
+        var result = GeoUpdateResult.None;
         foreach (var item in geoipFiles.Distinct())
         {
-            await UpdateSrsFile("geoip", item);
+            result = result.Merge(await UpdateSrsFile("geoip", item));
         }
 
         foreach (var item in geoSiteFiles.Distinct())
         {
-            await UpdateSrsFile("geosite", item);
+            result = result.Merge(await UpdateSrsFile("geosite", item));
         }
+
+        return result;
     }
 
-    private async Task UpdateSrsFile(string type, string srsName)
+    private async Task<GeoUpdateResult> UpdateSrsFile(string type, string srsName)
     {
         var srsUrl = string.IsNullOrEmpty(_config.ConstItem.SrsSourceUrl)
                         ? Global.SingboxRulesetUrl
@@ -448,20 +474,31 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
         var targetPath = Path.Combine(Utils.GetBinPath("srss"), fileName);
         var url = string.Format(srsUrl, type, $"{type}-{srsName}", srsName);
 
-        await DownloadGeoFile(url, fileName, targetPath);
+        return await DownloadGeoFile(url, fileName, targetPath);
     }
 
-    private async Task DownloadGeoFile(string url, string fileName, string targetPath)
+    private async Task<GeoUpdateResult> DownloadGeoFile(string url, string fileName, string targetPath)
     {
+        try
+        {
+            if (await IsGeoFileUpToDate(url, targetPath))
+            {
+                return GeoUpdateResult.None;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog($"{_tag} CheckGeoUpToDate failed. file={fileName}; {ex.Message}");
+        }
+
         var tmpFileName = Utils.GetTempPath(Utils.GetGuid());
+        var result = GeoUpdateResult.None;
 
         DownloadService downloadHandle = new();
         downloadHandle.UpdateCompleted += (sender2, args) =>
         {
             if (args.Success)
             {
-                _ = UpdateFunc(false, string.Format(ResUI.MsgDownloadGeoFileSuccessfully, fileName));
-
                 try
                 {
                     if (File.Exists(tmpFileName))
@@ -469,11 +506,13 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
                         File.Copy(tmpFileName, targetPath, true);
 
                         File.Delete(tmpFileName);
-                        //await    UpdateFunc(true, "");
+                        result = result with { Downloaded = true };
+                        _ = UpdateFunc(false, string.Format(ResUI.MsgDownloadGeoFileSuccessfully, fileName));
                     }
                 }
                 catch (Exception ex)
                 {
+                    result = result with { Failed = true };
                     _ = UpdateFunc(false, ex.Message);
                 }
             }
@@ -484,10 +523,114 @@ public class UpdateService(Config config, Func<bool, string, Task> updateFunc)
         };
         downloadHandle.Error += (sender2, args) =>
         {
+            result = result with { Failed = true };
             _ = UpdateFunc(false, args.GetException().Message);
         };
 
         await downloadHandle.DownloadFileAsync(url, tmpFileName, true, _timeout, _systemProxyFirst);
+        return result;
+    }
+
+    private async Task<bool> IsGeoFileUpToDate(string url, string targetPath)
+    {
+        if (!File.Exists(targetPath))
+        {
+            return false;
+        }
+
+        var remoteLastModified = await GetRemoteLastModified(url);
+        if (remoteLastModified is null)
+        {
+            return false;
+        }
+
+        var localLastWriteTime = File.GetLastWriteTimeUtc(targetPath);
+        return remoteLastModified.Value.UtcDateTime <= localLastWriteTime.AddSeconds(1);
+    }
+
+    private async Task<DateTimeOffset?> GetRemoteLastModified(string url)
+    {
+        var lastModified = await TryGetRemoteLastModified(url, true);
+        if (lastModified is not null)
+        {
+            return lastModified;
+        }
+
+        return await TryGetRemoteLastModified(url, false);
+    }
+
+    private async Task<DateTimeOffset?> TryGetRemoteLastModified(string url, bool useSystemProxy)
+    {
+        try
+        {
+            using var handler = new SocketsHttpHandler
+            {
+                Proxy = useSystemProxy ? GetSystemProxy() : null,
+                UseProxy = useSystemProxy
+            };
+            using var client = new HttpClient(handler);
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(_timeout));
+
+            using var request = new HttpRequestMessage(HttpMethod.Head, url);
+            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+            if (response.IsSuccessStatusCode)
+            {
+                return response.Content.Headers.LastModified;
+            }
+
+            if (response.StatusCode == HttpStatusCode.MethodNotAllowed || response.StatusCode == HttpStatusCode.NotImplemented)
+            {
+                using var getRequest = new HttpRequestMessage(HttpMethod.Get, url);
+                using var getResponse = await client.SendAsync(getRequest, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+                if (getResponse.IsSuccessStatusCode)
+                {
+                    return getResponse.Content.Headers.LastModified;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog($"{_tag} TryGetRemoteLastModified failed. proxy={useSystemProxy}; {ex.Message}");
+        }
+
+        return null;
+    }
+
+    private static IWebProxy? GetSystemProxy()
+    {
+        IWebProxy? proxy = null;
+
+        try
+        {
+            proxy = HttpClient.DefaultProxy;
+        }
+        catch
+        {
+        }
+
+        if (proxy == null)
+        {
+            try
+            {
+                proxy = WebRequest.GetSystemWebProxy();
+            }
+            catch
+            {
+            }
+        }
+
+        if (proxy != null)
+        {
+            try
+            {
+                proxy.Credentials ??= CredentialCache.DefaultCredentials;
+            }
+            catch
+            {
+            }
+        }
+
+        return proxy;
     }
 
     #endregion Geo private
